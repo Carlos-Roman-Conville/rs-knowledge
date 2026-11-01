@@ -20,6 +20,19 @@ export type RecordReport = {
 /** Living members able to read the script. */
 export type ReaderReport = { society: string; script: string; readers: number }
 
+/** Society/Economy carrier rates per year, for one technique; null means unreported. */
+export type ContactReport = {
+  from: string
+  to: string
+  migrants: number | null
+  contacts: number | null
+  artefacts: number | null
+  records: number | null
+}
+
+/** Society's literate share of the receiving population, in [0, 1]. */
+export type LiteracyReport = { society: string; share: number }
+
 export type DepartureReport = {
   mind: string
   society: string

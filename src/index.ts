@@ -11,6 +11,9 @@ export type { FeasibilityReport, ReachReport, ProductionReport } from './ports.t
 export type { CapabilityState, CapabilityChange } from './capability.ts'
 export { capabilityState, capabilityStates, diffCapability } from './capability.ts'
 export { EULER_GAMMA, expectedSkillChange, criticalSize } from './copying.ts'
+export type { ContactReport, LiteracyReport } from './ports.ts'
+export type { DiffusionParams } from './diffusion.ts'
+export { migrationHazard, tradeHazard, recordHazard, totalHazard, arrivalTimeMean } from './diffusion.ts'
 
 /** The engine prefix every knowledge id carries. */
 export const ENGINE = 'knowledge'

@@ -5,6 +5,8 @@ adds one dated line under Done, and parks a disagreement with DESIGN.md under Bl
 
 ## Done
 
+- 2026-11-01 (2987): Preserved artefact/record diffusion without living holders; added contactStart (default 0) with mortality from time zero and regression coverage.
+
 - 2026-11-01 (2942): Made isMedium authoritative for media availability; reject descriptors on false flags; missing descriptors preserve null kind/share; regression tests added.
 - 2026-11-01: 2941 rewrote `test/kd1-dynamic.test.ts` (KD-1c main, KD-1g by q only, KD-1h at fixed holder share); parked halves skipped.
 - 2026-11-01: 2907 added seeded aggregate KD-1 runner/runCase (`src/kd1.ts`); KD-1a/b/i tests pass.

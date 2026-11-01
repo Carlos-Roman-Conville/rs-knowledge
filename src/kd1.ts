@@ -13,6 +13,8 @@ export type Kd1Config = {
   technique: TechniqueRecord
   dt: number
   steps: number
+  /** Elapsed years before carrier contact begins; defaults to 0. */
+  contactStart?: number
   contact: ContactReport
   populationA: number
   holdersA: number
@@ -87,6 +89,7 @@ export function runKd1(config: Kd1Config, seed: number): Kd1Result {
   if (c.label !== 'fiction') throw new Error('KD-1 case must be labelled fiction')
   if (!Number.isSafeInteger(seed)) throw new Error('seed must be a safe integer')
   if (nonnegative(c.dt, 'dt') === 0) throw new Error('dt must be > 0')
+  const contactStart = nonnegative(c.contactStart ?? 0, 'contactStart')
   count(c.steps, 'steps')
   if (!Number.isFinite(c.dt * c.steps)) throw new Error('duration must be finite')
   count(c.holdersA, 'holdersA')
@@ -150,17 +153,19 @@ export function runKd1(config: Kd1Config, seed: number): Kd1Result {
         event.society === a && event.item === k && event.kind === 'lost')
       if (lost && result.lostA === null) result.lostA = { ...lost, step, time }
     }
+    // Only the portion of this step after contact starts exposes B to carriers.
+    const contactDt = contactStart === 0 ? c.dt : Math.min(c.dt, Math.max(0, time - contactStart))
     const h = source.length
-    const hm = populationA === 0 ? 0 : migrationHazard(c.contact, h, populationA, c.diffusion)
-    const ht = populationA === 0 ? 0 : tradeHazard({ ...c.contact, artefacts: 0 }, h, populationA, c.diffusion)
-    const hi = populationA === 0 ? 0 : tradeHazard({ ...c.contact, contacts: 0 }, h, populationA, c.diffusion)
-    const hr = populationA === 0 ? 0 : recordHazard(c.contact, h, populationA, { society: b, share: c.literacyB }, c.diffusion)
+    const hm = contactDt === 0 || populationA === 0 ? 0 : migrationHazard(c.contact, h, populationA, c.diffusion)
+    const ht = contactDt === 0 || populationA === 0 ? 0 : tradeHazard({ ...c.contact, artefacts: 0 }, h, populationA, c.diffusion)
+    const hi = contactDt === 0 || populationA === 0 ? 0 : tradeHazard({ ...c.contact, contacts: 0 }, h, populationA, c.diffusion)
+    const hr = contactDt === 0 || populationA === 0 ? 0 : recordHazard(c.contact, h, populationA, { society: b, share: c.literacyB }, c.diffusion)
     // Resolve the explicit-content parameter whenever the active channel needs it, independently of draws.
     const explicitSkill = hr > 0 ? skill * (1 - parameter(c.technique.tacitShare, 'tacitShare', true)) : null
-    if (occurs(hm, c.dt, migration)) demonstrate()
-    if (occurs(ht, c.dt, talk)) principles()
-    if (occurs(hi, c.dt, inference)) demonstrate()
-    if (occurs(hr, c.dt, reading)) { principles(); learn(k, explicitSkill!) }
+    if (occurs(hm, contactDt, migration)) demonstrate()
+    if (occurs(ht, contactDt, talk)) principles()
+    if (occurs(hi, contactDt, inference)) demonstrate()
+    if (occurs(hr, contactDt, reading)) { principles(); learn(k, explicitSkill!) }
     let current = state()
     if (occurs(inventionHazard(current, c.invention.experimentHours, c.invention.q, !c.invention.on), c.dt, trial)) {
       demonstrate()

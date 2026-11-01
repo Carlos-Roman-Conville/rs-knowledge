@@ -52,22 +52,21 @@ export function tradeHazard(
   contact: ContactReport, holders: number, population: number, params: DiffusionParams,
 ): number {
   const fraction = holderShare(contact, holders, population)
-  if (holders === 0) return 0
-  const contacts = rate(contact.contacts, 'contacts')
+  const contacts = holders === 0 ? 0 : rate(contact.contacts, 'contacts')
   const artefacts = rate(contact.artefacts, 'artefacts')
   const talk = contacts === 0 ? 0 : contacts * fraction * probability(params.piTell, 'piTell')
   const inference = artefacts === 0 ? 0 : artefacts * probability(params.piInfer, 'piInfer')
   return talk + inference
 }
 
-/** DESIGN §1.4: rho_st * L_t * piRead, per year; the task requires a living source holder. */
+/** DESIGN §1.4: rho_st * L_t * piRead, per year. */
 export function recordHazard(
   contact: ContactReport, holders: number, population: number, literacy: LiteracyReport, params: DiffusionParams,
 ): number {
   holderShare(contact, holders, population)
   share(literacy.share, 'literacy.share')
   if (literacy.society !== contact.to) throw new Error('literacy.society must match contact.to')
-  if (holders === 0 || literacy.share === 0) return 0
+  if (literacy.share === 0) return 0
   const records = rate(contact.records, 'records')
   return records === 0 ? 0 : records * literacy.share * probability(params.piRead, 'piRead')
 }

@@ -32,10 +32,19 @@ it('DESIGN §1.4: each fictional channel and its sum match hand-computed hazards
   expect(channels.total()).toBe(channels.migration() + channels.trade() + channels.record())
 })
 
-it.each(Object.entries(channels))('DESIGN §1.4: %s has no arrival without carriers or source holders', (_name, channel) => {
+it.each(Object.entries(channels))('DESIGN §1.4: %s has no arrival without carriers', (_name, channel) => {
   expect(channel(noCarriers, holders, population, unresolved)).toBe(0)
-  expect(channel(contactStub, 0, population, unresolved)).toBe(0)
-  expect(channel({ ...contactStub, migrants: null, contacts: null, artefacts: null, records: null }, 0, population, unresolved)).toBe(0)
+  expect(channel(noCarriers, 0, population, unresolved)).toBe(0)
+})
+
+it('DESIGN §1.4: only migration and talk require living source holders', () => {
+  expect(channels.migration({ ...contactStub, migrants: null }, 0, population, unresolved)).toBe(0)
+  expect(channels.trade({ ...noCarriers, contacts: null }, 0, population, unresolved)).toBe(0)
+  expect(channels.trade(contactStub, 0, population, { ...params, piTell: open })).toBeCloseTo(3 * 0.4)
+  expect(channels.record(contactStub, 0)).toBeCloseTo(5 * 0.6 * 0.8)
+  expect(channels.total(contactStub, 0)).toBeCloseTo(3 * 0.4 + 5 * 0.6 * 0.8)
+  expect(() => channels.trade(contactStub, 0, population, unresolved)).toThrow('diffusion.piInfer')
+  expect(() => channels.record(contactStub, 0, population, unresolved)).toThrow('diffusion.piRead')
 })
 
 it('rule 8: zero trade subchannels skip only their own unresolved probability', () => {

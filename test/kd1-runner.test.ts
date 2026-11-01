@@ -50,6 +50,44 @@ describe('DESIGN §3 KD-1 aggregate runner', () => {
     expect(runCase({ ...c, steps: 1 }, [12, 11]).seeds).toEqual([12, 11])
   })
 
+  it('KD-1h: every carrier waits for contactStart, including a start between steps', () => {
+    for (const channel of ['migrants', 'contacts', 'artefacts', 'records'] as const) {
+      const c = caseStub()
+      c.dt = 1
+      c.steps = 4
+      c.contactStart = 2.5
+      c.contact = { ...c.contact, migrants: 0, [channel]: 100000 }
+      c.literacyB = 1
+      c.diffusion = { piPractise: fiction(1), piTell: fiction(1), piInfer: fiction(1), piRead: fiction(1) }
+      for (const seed of seeds) {
+        const result = runKd1(c, seed)
+        expect(result.statesB.filter(s => s.time < c.contactStart!).every(s => !s.state.known && s.holders === 0)).toBe(true)
+        expect(result.statesB[3].state.known).toBe(true)
+        expect(result.firstArrival).toBe(channel === 'contacts' ? null : 3)
+      }
+      c.contactStart = 4
+      expect(runKd1(c, 0).statesB.every(s => !s.state.known)).toBe(true)
+    }
+  })
+
+  it('KD-1h: source mortality runs before contact starts', () => {
+    const c = caseStub()
+    c.steps = 4
+    c.contactStart = 2 * c.dt
+    c.records = []
+    c.mortality = { on: true, rate: fiction(100000) }
+    const result = runKd1(c, 0)
+    expect(result.lostA).toMatchObject({ time: c.dt, causes: ['death'] })
+    expect(result.firstArrival).toBeNull()
+  })
+
+  it('KD-1i: explicit contactStart zero preserves the default seeded results', () => {
+    const c = caseStub()
+    for (const seed of [0, 11, 12]) {
+      expect(runKd1({ ...c, contactStart: 0 }, seed)).toEqual(runKd1(c, seed))
+    }
+  })
+
   it('KD-1a: zero carrier rates and invention off never give B a holder over 200 seeds', () => {
     const c = caseStub()
     c.contact.migrants = 0
@@ -171,5 +209,8 @@ describe('DESIGN §3 KD-1 aggregate runner', () => {
     for (const dt of [0, -1, Infinity, NaN]) expect(() => runKd1({ ...c, dt }, 0)).toThrow('dt')
     expect(() => runKd1({ ...c, holdersA: c.populationA + 1 }, 0)).toThrow('holdersA')
     expect(() => runKd1({ ...c, steps: 1.5 }, 0)).toThrow('steps')
+    for (const contactStart of [-1, Infinity, NaN]) {
+      expect(() => runKd1({ ...c, contactStart }, 0)).toThrow('contactStart')
+    }
   })
 })

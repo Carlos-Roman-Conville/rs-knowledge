@@ -1,0 +1,17 @@
+{
+  "id": "knowledge/technique.writing",
+  "kind": "technique",
+  "name": "Writing",
+  "enables": ["economy/recipe.written-record"],
+  "propositions": ["knowledge/proposition.marks-can-stand-for-words"],
+  "minSkill": { "value": null, "label": "open", "sources": [] },
+  "tacitShare": { "value": null, "label": "open", "sources": [] },
+  "copyingLoss": {
+    "alpha": { "value": null, "label": "open", "sources": [] },
+    "beta": { "value": null, "label": "open", "sources": [] }
+  },
+  "isMedium": true,
+  "catalogueRef": null,
+  "sources": [],
+  "notes": "economy/recipe.written-record is an opaque recipe id; Economy has no such recipe yet."
+}

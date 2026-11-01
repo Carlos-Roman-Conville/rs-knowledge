@@ -1,0 +1,20 @@
+{
+  "id": "knowledge/technique.lime-burning",
+  "kind": "technique",
+  "name": "Lime burning",
+  "enables": ["economy/recipe.quicklime"],
+  "propositions": [
+    "knowledge/proposition.limestone-burnt-yields-quicklime",
+    "knowledge/proposition.slaked-lime-mortar-sets"
+  ],
+  "minSkill": { "value": null, "label": "open", "sources": [] },
+  "tacitShare": { "value": null, "label": "open", "sources": [] },
+  "copyingLoss": {
+    "alpha": { "value": null, "label": "open", "sources": [] },
+    "beta": { "value": null, "label": "open", "sources": [] }
+  },
+  "isMedium": false,
+  "catalogueRef": null,
+  "sources": [],
+  "notes": "economy/recipe.quicklime is an opaque recipe id; Economy has no such recipe yet. catalogueRef: no Catalogue record yet."
+}

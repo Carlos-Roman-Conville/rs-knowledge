@@ -1,0 +1,392 @@
+{
+  "label": "fiction",
+  "societies": [
+    {
+      "id": "A",
+      "population": 200
+    },
+    {
+      "id": "B",
+      "population": 150
+    }
+  ],
+  "holders": [
+    {
+      "mind": "A-001",
+      "society": "A",
+      "item": "knowledge/technique.fixture-lime-burning",
+      "level": "holds",
+      "skill": 0.4
+    },
+    {
+      "mind": "A-002",
+      "society": "A",
+      "item": "knowledge/technique.fixture-lime-burning",
+      "level": "holds",
+      "skill": 0.5
+    },
+    {
+      "mind": "A-003",
+      "society": "A",
+      "item": "knowledge/technique.fixture-lime-burning",
+      "level": "holds",
+      "skill": 0.6
+    },
+    {
+      "mind": "A-004",
+      "society": "A",
+      "item": "knowledge/technique.fixture-lime-burning",
+      "level": "holds",
+      "skill": 0.7
+    },
+    {
+      "mind": "A-005",
+      "society": "A",
+      "item": "knowledge/technique.fixture-lime-burning",
+      "level": "holds",
+      "skill": 0.8
+    },
+    {
+      "mind": "A-006",
+      "society": "A",
+      "item": "knowledge/technique.fixture-lime-burning",
+      "level": "holds",
+      "skill": 0.9
+    },
+    {
+      "mind": "A-007",
+      "society": "A",
+      "item": "knowledge/proposition.fixture-limestone-burns",
+      "level": "holds",
+      "skill": null
+    },
+    {
+      "mind": "A-007",
+      "society": "A",
+      "item": "knowledge/proposition.fixture-mortar-sets",
+      "level": "holds",
+      "skill": null
+    },
+    {
+      "mind": "A-008",
+      "society": "A",
+      "item": "knowledge/proposition.fixture-limestone-burns",
+      "level": "holds",
+      "skill": null
+    },
+    {
+      "mind": "A-008",
+      "society": "A",
+      "item": "knowledge/proposition.fixture-mortar-sets",
+      "level": "holds",
+      "skill": null
+    },
+    {
+      "mind": "A-009",
+      "society": "A",
+      "item": "knowledge/proposition.fixture-limestone-burns",
+      "level": "holds",
+      "skill": null
+    },
+    {
+      "mind": "A-009",
+      "society": "A",
+      "item": "knowledge/proposition.fixture-mortar-sets",
+      "level": "holds",
+      "skill": null
+    },
+    {
+      "mind": "A-010",
+      "society": "A",
+      "item": "knowledge/proposition.fixture-limestone-burns",
+      "level": "holds",
+      "skill": null
+    },
+    {
+      "mind": "A-010",
+      "society": "A",
+      "item": "knowledge/proposition.fixture-mortar-sets",
+      "level": "holds",
+      "skill": null
+    },
+    {
+      "mind": "A-011",
+      "society": "A",
+      "item": "knowledge/proposition.fixture-limestone-burns",
+      "level": "holds",
+      "skill": null
+    },
+    {
+      "mind": "A-011",
+      "society": "A",
+      "item": "knowledge/proposition.fixture-mortar-sets",
+      "level": "holds",
+      "skill": null
+    },
+    {
+      "mind": "A-012",
+      "society": "A",
+      "item": "knowledge/proposition.fixture-limestone-burns",
+      "level": "holds",
+      "skill": null
+    },
+    {
+      "mind": "A-012",
+      "society": "A",
+      "item": "knowledge/proposition.fixture-mortar-sets",
+      "level": "holds",
+      "skill": null
+    },
+    {
+      "mind": "A-013",
+      "society": "A",
+      "item": "knowledge/proposition.fixture-limestone-burns",
+      "level": "holds",
+      "skill": null
+    },
+    {
+      "mind": "A-013",
+      "society": "A",
+      "item": "knowledge/proposition.fixture-mortar-sets",
+      "level": "holds",
+      "skill": null
+    },
+    {
+      "mind": "A-014",
+      "society": "A",
+      "item": "knowledge/proposition.fixture-limestone-burns",
+      "level": "holds",
+      "skill": null
+    },
+    {
+      "mind": "A-014",
+      "society": "A",
+      "item": "knowledge/proposition.fixture-mortar-sets",
+      "level": "holds",
+      "skill": null
+    },
+    {
+      "mind": "A-015",
+      "society": "A",
+      "item": "knowledge/proposition.fixture-limestone-burns",
+      "level": "holds",
+      "skill": null
+    },
+    {
+      "mind": "A-015",
+      "society": "A",
+      "item": "knowledge/proposition.fixture-mortar-sets",
+      "level": "holds",
+      "skill": null
+    },
+    {
+      "mind": "A-016",
+      "society": "A",
+      "item": "knowledge/proposition.fixture-limestone-burns",
+      "level": "holds",
+      "skill": null
+    },
+    {
+      "mind": "A-016",
+      "society": "A",
+      "item": "knowledge/proposition.fixture-mortar-sets",
+      "level": "holds",
+      "skill": null
+    },
+    {
+      "mind": "A-017",
+      "society": "A",
+      "item": "knowledge/proposition.fixture-limestone-burns",
+      "level": "holds",
+      "skill": null
+    },
+    {
+      "mind": "A-017",
+      "society": "A",
+      "item": "knowledge/proposition.fixture-mortar-sets",
+      "level": "holds",
+      "skill": null
+    },
+    {
+      "mind": "A-018",
+      "society": "A",
+      "item": "knowledge/proposition.fixture-limestone-burns",
+      "level": "holds",
+      "skill": null
+    },
+    {
+      "mind": "A-018",
+      "society": "A",
+      "item": "knowledge/proposition.fixture-mortar-sets",
+      "level": "holds",
+      "skill": null
+    },
+    {
+      "mind": "A-019",
+      "society": "A",
+      "item": "knowledge/proposition.fixture-limestone-burns",
+      "level": "holds",
+      "skill": null
+    },
+    {
+      "mind": "A-019",
+      "society": "A",
+      "item": "knowledge/proposition.fixture-mortar-sets",
+      "level": "holds",
+      "skill": null
+    },
+    {
+      "mind": "A-020",
+      "society": "A",
+      "item": "knowledge/proposition.fixture-limestone-burns",
+      "level": "holds",
+      "skill": null
+    },
+    {
+      "mind": "A-020",
+      "society": "A",
+      "item": "knowledge/proposition.fixture-mortar-sets",
+      "level": "holds",
+      "skill": null
+    },
+    {
+      "mind": "A-021",
+      "society": "A",
+      "item": "knowledge/proposition.fixture-limestone-burns",
+      "level": "holds",
+      "skill": null
+    },
+    {
+      "mind": "A-021",
+      "society": "A",
+      "item": "knowledge/proposition.fixture-mortar-sets",
+      "level": "holds",
+      "skill": null
+    },
+    {
+      "mind": "A-022",
+      "society": "A",
+      "item": "knowledge/proposition.fixture-limestone-burns",
+      "level": "holds",
+      "skill": null
+    },
+    {
+      "mind": "A-022",
+      "society": "A",
+      "item": "knowledge/proposition.fixture-mortar-sets",
+      "level": "holds",
+      "skill": null
+    },
+    {
+      "mind": "A-023",
+      "society": "A",
+      "item": "knowledge/proposition.fixture-limestone-burns",
+      "level": "holds",
+      "skill": null
+    },
+    {
+      "mind": "A-023",
+      "society": "A",
+      "item": "knowledge/proposition.fixture-mortar-sets",
+      "level": "holds",
+      "skill": null
+    },
+    {
+      "mind": "A-024",
+      "society": "A",
+      "item": "knowledge/proposition.fixture-limestone-burns",
+      "level": "holds",
+      "skill": null
+    },
+    {
+      "mind": "A-024",
+      "society": "A",
+      "item": "knowledge/proposition.fixture-mortar-sets",
+      "level": "holds",
+      "skill": null
+    },
+    {
+      "mind": "A-025",
+      "society": "A",
+      "item": "knowledge/proposition.fixture-limestone-burns",
+      "level": "holds",
+      "skill": null
+    },
+    {
+      "mind": "A-025",
+      "society": "A",
+      "item": "knowledge/proposition.fixture-mortar-sets",
+      "level": "holds",
+      "skill": null
+    },
+    {
+      "mind": "A-026",
+      "society": "A",
+      "item": "knowledge/proposition.fixture-limestone-burns",
+      "level": "holds",
+      "skill": null
+    },
+    {
+      "mind": "A-026",
+      "society": "A",
+      "item": "knowledge/proposition.fixture-mortar-sets",
+      "level": "holds",
+      "skill": null
+    }
+  ],
+  "records": [
+    {
+      "record": "A-rec-001",
+      "society": "A",
+      "item": "knowledge/technique.fixture-lime-burning",
+      "intact": true,
+      "fidelity": 0.7,
+      "script": "fixture-script"
+    }
+  ],
+  "readers": [
+    {
+      "society": "A",
+      "script": "fixture-script",
+      "readers": 10
+    },
+    {
+      "society": "B",
+      "script": "fixture-script",
+      "readers": 0
+    }
+  ],
+  "feasibility": [
+    {
+      "society": "A",
+      "recipe": "fixture/recipe.quicklime",
+      "feasible": true
+    },
+    {
+      "society": "B",
+      "recipe": "fixture/recipe.quicklime",
+      "feasible": true
+    }
+  ],
+  "reach": [
+    {
+      "society": "A",
+      "recipe": "fixture/recipe.quicklime",
+      "reachable": true
+    },
+    {
+      "society": "B",
+      "recipe": "fixture/recipe.quicklime",
+      "reachable": true
+    }
+  ],
+  "production": [
+    {
+      "society": "A",
+      "technique": "knowledge/technique.fixture-lime-burning",
+      "producersUsing": 3,
+      "successes": 50,
+      "share": 0.4
+    }
+  ]
+}

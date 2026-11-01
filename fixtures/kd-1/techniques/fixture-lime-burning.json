@@ -1,0 +1,20 @@
+{
+  "id": "knowledge/technique.fixture-lime-burning",
+  "kind": "technique",
+  "name": "Fixture lime burning",
+  "enables": ["fixture/recipe.quicklime"],
+  "propositions": [
+    "knowledge/proposition.fixture-limestone-burns",
+    "knowledge/proposition.fixture-mortar-sets"
+  ],
+  "minSkill": { "value": 0.5, "label": "fiction", "sources": [] },
+  "tacitShare": { "value": 0.3, "label": "fiction", "sources": [] },
+  "copyingLoss": {
+    "alpha": { "value": null, "label": "open", "sources": [] },
+    "beta": { "value": null, "label": "open", "sources": [] }
+  },
+  "isMedium": false,
+  "catalogueRef": null,
+  "sources": [],
+  "notes": "fiction for KD-1"
+}

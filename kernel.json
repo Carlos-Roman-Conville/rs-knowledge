@@ -1,0 +1,21 @@
+{
+  "processes": [
+    {
+      "id": "knowledge.step",
+      "mechanisms": [
+        "knowledge.collective.stock",
+        "knowledge.capability.state"
+      ],
+      "writes": [
+        "society.knowledge_stock",
+        "society.capability_state"
+      ],
+      "reads": [
+        "mind.belief"
+      ],
+      "period": "event",
+      "phase": "aggregation"
+    }
+  ],
+  "ports": []
+}

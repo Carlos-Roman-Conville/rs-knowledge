@@ -1,0 +1,23 @@
+{
+  "name": "@rex/knowledge",
+  "version": "0.0.1",
+  "description": "The Knowledge & Technology engine: the five capability states per society and technique, the collective knowledge stock with loss, a technique's knowledge requirements, diffusion as content on Society's network, and aggregate-resolution invention and adoption. Never a tech tree; never reads a date.",
+  "private": true,
+  "type": "module",
+  "main": "src/index.ts",
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@rex/kernel": "file:../kernel"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.6",
+    "typescript": "~6.0.2",
+    "vitest": "^5.0.5"
+  },
+  "exports": {
+    ".": "./src/index.ts"
+  }
+}

@@ -16,6 +16,15 @@ adds one dated line under Done, and parks a disagreement with DESIGN.md under Bl
 - 2026-10-31: 2857 stock, loss/regain events, Henrich copying loss; 2856 schemas, loader, checker, fence.
 - 2026-10-31: package scaffolded by the keeper.
 
+## Resolved by the keeper (2026-11-01; DESIGN log)
+
+- 2904 holder-zero: records and artefacts carry k with no living holder; only migration and talk scale with H_s/N_s (DESIGN §1.4). Fix in 2987.
+- 2941 KD-1c and KD-1d: run with invention off (DESIGN §3); KD-1d is the explicit-skill-below-minSkill case. Tests in 2988.
+- 2941 KD-1h before contact: needs a contact start time in the runner (2987); test in 2988.
+- 2942 writing medium: no descriptor; user share = holders of the medium technique over population (DESIGN §1.8).
+- 2860 KD-1a: B stays possible because the fixture gives B reach and feasibility; the test as written is correct.
+- 2941 KD-1g advantage half and the dependence of q on tau: wait on research unit 2989 (forms with sources).
+
 ## Blocked
 
 - 2026-11-01 (2942): knowledge/technique.writing (data/techniques/writing.json) has isMedium true but no medium descriptor; kind and literacy-based user share remain unknown pending keeper metadata.

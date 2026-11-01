@@ -204,6 +204,8 @@ and writing", ROADMAP P9):
 | **trade and visits** (goods and short contact) | propositions by talk; method only by inference from the artefact (Cognition's `cognition.history.inference`) | `h_trade = c_st · (H_s(k)/N_s) · π_tell + v_st · π_infer(k)` |
 | **records** (a record object travels to `t`) | propositions and the explicit `1 − τ_k` of the method | `h_rec = ρ_st(k) · L_t · π_read` |
 
+**Holders and carriers (keeper, 2026-11-01, clarifying the formulas above):** only the person-carried terms scale with `H_s/N_s` (a migrant or a talker must be a holder). The artefact term `v_st · π_infer` and the record term `ρ_st(k) · L_t · π_read` do not: an artefact or a record already carries `k`, so it keeps carrying `k` after every holder in `s` is gone (the loss rule of §1.2 and DUP-61 amendment 2a). A reader in `t` gains the method at skill `fidelity ≤ 1 − τ_k` of the writer's skill (§1.3).
+
 `m_st` migrants per year from `s` to `t`, `c_st` contacts per year, `v_st` artefacts of `k` reaching `t` per year,
 `ρ_st(k)` records of `k` reaching `t` per year (Society's network and Economy's trade, read), `L_t` the literate share
 of `t` (§1.8), `π_*` the probability that the carrier actually passes it on (practises it in the new place, tells it,
@@ -290,7 +292,7 @@ techniques in the same stock, with the same five states, enabling Economy recipe
 Reality's medium properties. `society.available_media` is then derived, not stored: the media whose technique is
 deployed in `s`, each with its **user share** (for writing, the literate share `L_s`: holders of the reading skill,
 from Cognition's skill port, taught by Society's institutions). No separate media gear; no list of media by period.
-Speech and gesture are species capabilities (Life), always available.
+Speech and gesture are species capabilities (Life), always available. **(keeper, 2026-11-01)** No separate medium descriptor: a medium technique is marked by `isMedium`; its physical properties are Reality's `world.medium_properties` keyed by the technique id; its user share is the holders of the medium technique over the population (for writing, the people who can read and write the script).
 
 ## 2. Interfaces (ports; kernel.json declares each)
 
@@ -327,8 +329,8 @@ recorded; each case runs ≥ 200 seeds.
 |---|---|---|
 | KD-1a no contact | all rates 0; invention off | B never knows k; B's states stay false for every seed |
 | KD-1b migration | `m_AB > 0`, holders a fraction of A | arrival time in B is exponential with hazard `h_mig` (§1.4); the empirical mean over seeds matches `1/h_mig` within the 95 % interval (verification of the hazard, level 1 maths) |
-| KD-1c records only, low tacit share | `ρ_AB > 0`, `L_B > 0`, `τ_k` small, no migration | B becomes **known**, then **invented** after trial; never invented if `L_B = 0` |
-| KD-1d records only, high tacit share | as KD-1c with `τ_k` large | B becomes **known** but stays **not invented** far longer than KD-1c, or not at all within the run (Collins' TEA laser pattern, qualitative, level 3) |
+| KD-1c records only, low tacit share | `ρ_AB > 0`, `L_B > 0`, `τ_k` small (reader's explicit skill `≥ minSkill`), no migration, **invention off** | B becomes **known** and **invented**; never known nor invented if `L_B = 0` |
+| KD-1d records only, high tacit share | as KD-1c with `τ_k` large (explicit skill `< minSkill`), **invention off** | B becomes **known** but never **invented** (Collins' TEA laser pattern, qualitative, level 3); with invention on, closing the gap by trial waits on the researched form of `q` (§1.5) |
 | KD-1e not possible in B | B has no limestone reachable; migration on | B may become **known** and even hold a migrant who has the method, but never **adopted** or **deployed** (ROADMAP P9 test 1 analogue) |
 | KD-1f no incentive | possible, invented, cost advantage ≤ 0 | known and invented, never adopted (the aeolipile pattern) |
 | KD-1g adoption speed | possible, invented, advantage > 0; two contact densities, two advantages | adoption follows an S-curve; the time from 10 % to 90 % of `M_B` falls as contact and advantage rise (ROADMAP P9 test 2; Griliches' direction) |
@@ -440,3 +442,4 @@ Gross 1943, *Rural Sociology* 8; Vaesen et al. 2016, *PNAS* 113; Weitzman 1998, 
 | 2026-10-31 | KNT-C1 agreed with the Cognition keeper: holder port reads `mind.belief` (`truth` attribute, θ_hold ours, host handle map, heard-of vs holds); individual technique invention open (KNT-6); skill on [0,1], units open (KNT-7) |
 | 2026-10-31 | **Approved by Rex**: KNT-Q1–Q4 as proposed; package, hooks, lane and first units follow |
 | 2026-10-31 | Rex approved batch 2b: DUP-61 to Knowledge & Technology, DUP-60 one network. This engine agreed both acceptance tests, with the amendments in §6; the four new row ids announced to the registry keeper |
+| 2026-11-01 | Keeper rulings on units parked in the lane: records and artefacts carry a technique without a living holder (§1.4); KD-1c and KD-1d run with invention off (§3); medium user share = holders of the medium technique, no descriptor (§1.8); the KD-1a fixture keeps B possible (correct per §1.1). The dependence of adoption speed on the cost advantage and of `q` on `τ` waits on a research unit |

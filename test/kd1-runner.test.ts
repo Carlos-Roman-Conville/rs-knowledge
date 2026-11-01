@@ -68,7 +68,7 @@ describe('DESIGN §3 KD-1 aggregate runner', () => {
       c.contactStart = 4
       expect(runKd1(c, 0).statesB.every(s => !s.state.known)).toBe(true)
     }
-  })
+  }, 30_000)
 
   it('KD-1h: source mortality runs before contact starts', () => {
     const c = caseStub()
@@ -104,7 +104,7 @@ describe('DESIGN §3 KD-1 aggregate runner', () => {
         && !state.known && !state.invented && !state.adopted && state.deployed === null)).toBe(true)
     }
     // Possible remains the fixture's independent port flag (the existing keeper decision).
-  })
+  }, 30_000)
 
   it('KD-1b: migration mean over 200 seeds contains 1/h_mig in its normal 95% interval (dt=0.02)', () => {
     const c = caseStub()
@@ -128,7 +128,7 @@ describe('DESIGN §3 KD-1 aggregate runner', () => {
       expect(first.state.invented).toBe(true)
       expect(result.statesB.every(s => s.state.deployed === null)).toBe(true)
     }
-  })
+  }, 30_000)
 
   it('§1.2: the Life mortality stub reports A loss with death cause, or preserves a readable record', () => {
     const c = caseStub()

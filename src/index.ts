@@ -17,6 +17,8 @@ export { migrationHazard, tradeHazard, recordHazard, totalHazard, arrivalTimeMea
 export { inventionHazard } from './invention.ts'
 export type { AdopterInputs } from './adoption.ts'
 export { adopters, bassStep, bassCurve } from './adoption.ts'
+export type { AvailableMedium, SocietyMedia } from './media.ts'
+export { availableMedia } from './media.ts'
 
 /** The engine prefix every knowledge id carries. */
 export const ENGINE = 'knowledge'

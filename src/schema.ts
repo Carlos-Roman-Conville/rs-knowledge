@@ -23,6 +23,7 @@ export type TechniqueRecord = {
   tacitShare: Param
   copyingLoss: { alpha: Param; beta: Param }
   isMedium: boolean
+  medium?: { kind: string }
   catalogueRef: string | null
   sources: string[]
   notes?: string
@@ -59,6 +60,9 @@ export function validateRecord(record: unknown): string[] {
     array('propositions')
     if (Array.isArray(record.enables) && record.enables.length === 0) errors.push('enables must be non-empty')
     if (typeof record.isMedium !== 'boolean') errors.push('isMedium must be a boolean')
+    if (record.medium !== undefined && (!isObject(record.medium) || typeof record.medium.kind !== 'string')) {
+      errors.push('medium must be an object with a string kind')
+    }
     if (record.catalogueRef !== null && (typeof record.catalogueRef !== 'string' ||
       !/^catalogue\/(technology|practice)\.[a-z0-9]+(-[a-z0-9]+)*(\.[0-9]+)?$/.test(record.catalogueRef))) {
       errors.push('catalogueRef must be null or a catalogue technology/practice id')

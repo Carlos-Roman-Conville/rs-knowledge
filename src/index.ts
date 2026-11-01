@@ -19,6 +19,8 @@ export type { AdopterInputs } from './adoption.ts'
 export { adopters, bassStep, bassCurve } from './adoption.ts'
 export type { AvailableMedium, SocietyMedia } from './media.ts'
 export { availableMedia } from './media.ts'
+export type { Kd1Config, Kd1Step, Kd1Loss, Kd1Result, Kd1CaseResult } from './kd1.ts'
+export { runKd1, runCase } from './kd1.ts'
 
 /** The engine prefix every knowledge id carries. */
 export const ENGINE = 'knowledge'

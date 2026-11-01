@@ -5,6 +5,8 @@ adds one dated line under Done, and parks a disagreement with DESIGN.md under Bl
 
 ## Done
 
+- 2026-11-01: 2907 added seeded aggregate KD-1 runner/runCase exports; KD-1a/b/i and port/loss/null-parameter tests pass (200 seeds, dt=0.02 for b), plus fence, typecheck and checker. Uses kernel streams; migration is apprenticeship, preserving source holders; mortality removes source holders/population. Censored runs leave mean/CI null; deployment stays unreported. All ports are explicit fiction stubs.
+
 - 2026-10-31: 2862 moved the filesystem loader to scripts, enforced src-relative import containment with a temporary regression fixture, and corrected the KD-1a title without changing expectations.
 
 - 2026-10-31: 2860 KD-1 static demonstration tests (`test/kd1-static.test.ts`) for KD-1a/e/f/h and determinism on the kd-1 fixture via `loadRecords`, `world.json`, stock and capability pure functions; gate passes. KD-1a `possible` parked under Blocked (brief vs fixture).
@@ -18,5 +20,7 @@ adds one dated line under Done, and parks a disagreement with DESIGN.md under Bl
 - 2026-10-31: package scaffolded by the Knowledge & Technology keeper (ids helper only).
 
 ## Blocked
+
+- 2026-11-01 (2907): KD-1e/f runner tests deferred per task's keeper-decision hold. No generation/copying window is assumed (DESIGN §1.2 leaves it open); agent/aggregate equivalence and remaining case acceptance tests await later tasks. The runner models first method acquisition with one B representative, fixed records/readers and source-only mortality; it does not model cohort growth or live ports.
 
 - 2026-10-31 (2860): Task brief KD-1a asks for every capability state false in B on the stock fixture, but `fixtures/kd-1/world.json` reports B reach and feasibility true, so `capabilityState` correctly leaves `possible: true` (DESIGN §1.1). Test asserts empty B stock and false known/invented/adopted with `deployed: null`. Resolving the brief vs fixture needs a keeper change, not `src/`.

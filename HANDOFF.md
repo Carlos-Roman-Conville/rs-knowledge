@@ -5,6 +5,7 @@ adds one dated line under Done, and parks a disagreement with DESIGN.md under Bl
 
 ## Done
 
+- 2026-11-01 (2942): Made isMedium authoritative for media availability; reject descriptors on false flags; missing descriptors preserve null kind/share; regression tests added.
 - 2026-11-01: 2941 rewrote `test/kd1-dynamic.test.ts` (KD-1c main, KD-1g by q only, KD-1h at fixed holder share); parked halves skipped.
 - 2026-11-01: 2907 added seeded aggregate KD-1 runner/runCase (`src/kd1.ts`); KD-1a/b/i tests pass.
 - 2026-11-01: 2906 derived society media availability from deployment.
@@ -17,6 +18,7 @@ adds one dated line under Done, and parks a disagreement with DESIGN.md under Bl
 
 ## Blocked
 
+- 2026-11-01 (2942): knowledge/technique.writing (data/techniques/writing.json) has isMedium true but no medium descriptor; kind and literacy-based user share remain unknown pending keeper metadata.
 - 2026-11-01 (2941): KD-1d skipped: the runner's invention hazard has no tau dependence (DESIGN §1.5); needs a tacitShare knob.
 - 2026-11-01 (2941): KD-1g cost-advantage half skipped: no knob maps cost advantage to adoption speed (adopters only gates on > 0); contact half runs via adoption.q.
 - 2026-11-01 (2941): KD-1h 'A loses k before contact reaches B' skipped: runner lacks a contact start time; loss-share half runs at a fixed 4 % holder share.

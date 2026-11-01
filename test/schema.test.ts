@@ -3,6 +3,13 @@ import { validateRecord } from '../src/schema.ts'
 import { proposition, technique } from './records.ts'
 
 describe('record runtime schema', () => {
+  it('DESIGN §1.8: rejects a medium descriptor when isMedium is false', () => {
+    expect(validateRecord({ ...technique(), isMedium: false, medium: { kind: 'writing' } }))
+      .toContain('medium descriptor requires isMedium to be true')
+  })
+  it('DESIGN §1.8: accepts isMedium true without a descriptor', () => {
+    expect(validateRecord({ ...technique(), isMedium: true })).toEqual([])
+  })
   it('accepts propositions and techniques with fiction parameters', () => {
     expect(validateRecord(proposition())).toEqual([])
     expect(validateRecord(technique())).toEqual([])

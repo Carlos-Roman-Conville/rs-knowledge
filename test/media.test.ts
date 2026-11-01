@@ -11,6 +11,17 @@ const stateStub = (record = writing, society = 'A', deployed: number | null = 0.
   society, technique: record.id, possible: false, known: false, invented: false, adopted: false, deployed,
 })
 
+it('DESIGN §1.8: a flagged deployed technique without a descriptor remains available with unknown kind and share', () => {
+  const record = { ...technique(), isMedium: true }
+  expect(availableMedia([record], [stateStub(record)], literacyStub)[0]?.media)
+    .toEqual([{ technique: record.id, kind: null, userShare: null }])
+})
+
+it('DESIGN §1.8: a descriptor cannot make an unflagged technique available', () => {
+  const record = { ...writing, isMedium: false }
+  expect(availableMedia([record], [stateStub(record)], literacyStub)[0]?.media).toEqual([])
+})
+
 it('DESIGN §1.8: only flagged techniques are media; speech and gesture are not synthesized', () => {
   expect(availableMedia([writing, technique()], [stateStub(), stateStub(technique())], literacyStub)[0]?.media)
     .toEqual([{ technique: writing.id, kind: 'writing', userShare: 0.25 }])

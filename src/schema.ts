@@ -60,6 +60,9 @@ export function validateRecord(record: unknown): string[] {
     array('propositions')
     if (Array.isArray(record.enables) && record.enables.length === 0) errors.push('enables must be non-empty')
     if (typeof record.isMedium !== 'boolean') errors.push('isMedium must be a boolean')
+    if (record.isMedium === false && record.medium !== undefined) {
+      errors.push('medium descriptor requires isMedium to be true')
+    }
     if (record.medium !== undefined && (!isObject(record.medium) || typeof record.medium.kind !== 'string')) {
       errors.push('medium must be an object with a string kind')
     }

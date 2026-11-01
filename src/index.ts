@@ -14,6 +14,9 @@ export { EULER_GAMMA, expectedSkillChange, criticalSize } from './copying.ts'
 export type { ContactReport, LiteracyReport } from './ports.ts'
 export type { DiffusionParams } from './diffusion.ts'
 export { migrationHazard, tradeHazard, recordHazard, totalHazard, arrivalTimeMean } from './diffusion.ts'
+export { inventionHazard } from './invention.ts'
+export type { AdopterInputs } from './adoption.ts'
+export { adopters, bassStep, bassCurve } from './adoption.ts'
 
 /** The engine prefix every knowledge id carries. */
 export const ENGINE = 'knowledge'

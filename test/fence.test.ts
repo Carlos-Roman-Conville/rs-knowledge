@@ -1,4 +1,5 @@
 import { mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { tmpdir } from 'node:os'
 import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import ts from 'typescript'
@@ -42,12 +43,12 @@ function fenceFailures(root: string): string[] {
   return failures
 }
 
-it('DESIGN ง0 invariant 2 and rules 3, 6, 7: import and deterministic source fence', () => {
+it('DESIGN ยง0 invariant 2 and rules 3, 6, 7: import and deterministic source fence', () => {
   expect(fenceFailures(fileURLToPath(new URL('../src', import.meta.url)))).toEqual([])
 })
 
 it('rule 6: rejects relative imports escaping src in a temporary fixture', () => {
-  const fixture = mkdtempSync(fileURLToPath(new URL('../.fence-fixture-', import.meta.url)))
+  const fixture = mkdtempSync(join(tmpdir(), 'knowledge-fence-fixture-'))
   try {
     const root = join(fixture, 'src')
     mkdirSync(join(root, 'nested'), { recursive: true })

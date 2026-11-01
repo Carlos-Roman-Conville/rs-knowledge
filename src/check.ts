@@ -1,5 +1,6 @@
 import { isObject, validateRecord } from './schema.ts'
-import type { RecordFile } from './load.ts'
+
+export type RecordFile = { path: string; error?: string }
 
 const forbiddenKeys = new Set(['year', 'date', 'period', 'era', 'century', 'prerequisite', 'prerequisites', 'requires_technique', 'unlocks'])
 const idPattern = /^knowledge\/(proposition|technique)\.([a-z0-9]+(-[a-z0-9]+)*)$/

@@ -1,7 +1,7 @@
-import { directories, join, jsonFiles, readFileSync } from '../scripts/files.ts'
-import { isObject } from './schema.ts'
+import { directories, join, jsonFiles, readFileSync } from './files.ts'
+import { isObject } from '../src/schema.ts'
 
-export type RecordFile = { path: string; error?: string }
+import type { RecordFile } from '../src/check.ts'
 export type LoadedRecords = { records: unknown[]; files: RecordFile[] }
 
 /** Parallel arrays retain file provenance, including a null slot for malformed JSON. */

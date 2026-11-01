@@ -1,6 +1,6 @@
 import { afterEach, expect, it } from 'vitest'
 import { rmSync } from 'node:fs'
-import { loadRecords } from '../src/load.ts'
+import { loadRecords } from '../scripts/load.ts'
 import { proposition, technique, tempRepo, write } from './records.ts'
 
 const roots: string[] = []

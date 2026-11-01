@@ -5,6 +5,8 @@ adds one dated line under Done, and parks a disagreement with DESIGN.md under Bl
 
 ## Done
 
+- 2026-10-31: 2862 moved the filesystem loader to scripts, enforced src-relative import containment with a temporary regression fixture, and corrected the KD-1a title without changing expectations.
+
 - 2026-10-31: 2860 KD-1 static demonstration tests (`test/kd1-static.test.ts`) for KD-1a/e/f/h and determinism on the kd-1 fixture via `loadRecords`, `world.json`, stock and capability pure functions; gate passes. KD-1a `possible` parked under Blocked (brief vs fixture).
 
 - 2026-10-31: 2858 implemented five independent capability predicates, Reality/Economy report ports, sorted batch states and field-level diffs, and public exports. All 20 capability tests pass; the requested gate passes 40 tests across capability/stock/fence plus tsc --noEmit. Missing diff pairs use unreported defaults (possible/deployed null; known/invented/adopted false); no recipe links yield possible null; invalid production shares throw. Port snapshots are supplied by the host, with no live engine integration in this unit.

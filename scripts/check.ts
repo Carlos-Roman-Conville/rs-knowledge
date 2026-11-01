@@ -1,5 +1,5 @@
 import { fileURLToPath } from 'node:url'
-import { loadRecords } from '../src/load.ts'
+import { loadRecords } from './load.ts'
 import { checkRecords } from '../src/check.ts'
 
 const { records, files } = loadRecords(fileURLToPath(new URL('../', import.meta.url)))

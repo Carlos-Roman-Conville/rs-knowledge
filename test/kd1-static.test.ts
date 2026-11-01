@@ -3,12 +3,13 @@ import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
 import {
-  capabilityStates, computeStock, diffCapability, diffStock, loadRecords,
+  capabilityStates, computeStock, diffCapability, diffStock,
 } from '../src/index.ts'
 import type {
   DepartureReport, FeasibilityReport, HolderReport, ProductionReport,
   ReachReport, ReaderReport, RecordReport, TechniqueRecord,
 } from '../src/index.ts'
+import { loadRecords } from '../scripts/load.ts'
 import { isObject } from '../src/schema.ts'
 
 const repoRoot = fileURLToPath(new URL('../', import.meta.url))
@@ -55,7 +56,7 @@ const techniqueHolders = (world: WorldFixture) =>
   world.holders.filter(holder => holder.society === 'A' && holder.item === TECHNIQUE_ID && holder.level === 'holds')
 
 describe('KD-1a no contact', () => {
-  it('DESIGN §3 KD-1a: B stock is empty and every capability state is false with deployed null', () => {
+  it('DESIGN §3 KD-1a: B stock is empty, known/invented/adopted are false, and deployed is null', () => {
     const world = loadWorld()
     const technique = loadTechnique()
     expect(stock(world).filter(entry => entry.society === 'B')).toEqual([])

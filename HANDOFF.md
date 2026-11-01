@@ -5,22 +5,22 @@ adds one dated line under Done, and parks a disagreement with DESIGN.md under Bl
 
 ## Done
 
-- 2026-11-01: 2907 added seeded aggregate KD-1 runner/runCase exports; KD-1a/b/i and port/loss/null-parameter tests pass (200 seeds, dt=0.02 for b), plus fence, typecheck and checker. Uses kernel streams; migration is apprenticeship, preserving source holders; mortality removes source holders/population. Censored runs leave mean/CI null; deployment stays unreported. All ports are explicit fiction stubs.
-
-- 2026-10-31: 2862 moved the filesystem loader to scripts, enforced src-relative import containment with a temporary regression fixture, and corrected the KD-1a title without changing expectations.
-
-- 2026-10-31: 2860 KD-1 static demonstration tests (`test/kd1-static.test.ts`) for KD-1a/e/f/h and determinism on the kd-1 fixture via `loadRecords`, `world.json`, stock and capability pure functions; gate passes. KD-1a `possible` parked under Blocked (brief vs fixture).
-
-- 2026-10-31: 2858 implemented five independent capability predicates, Reality/Economy report ports, sorted batch states and field-level diffs, and public exports. All 20 capability tests pass; the requested gate passes 40 tests across capability/stock/fence plus tsc --noEmit. Missing diff pairs use unreported defaults (possible/deployed null; known/invented/adopted false); no recipe links yield possible null; invalid production shares throw. Port snapshots are supplied by the host, with no live engine integration in this unit.
-
-- 2026-10-31: 2857 pure report-based stock, loss/regain events with sorted causes, read-port types, and Henrich copying-loss functions exported. DUP-61 (1), (2), (2a), (2b), (5) covered with explicitly fictional port stubs; gate tests and typecheck pass. Duplicate holder reports count each mind once per item (holds overrides heard_of); no_reader requires a previously readable intact record to survive unreadably in the same society/item. Implemented and verified, not integrated with live engine ports; aggregate/person-run equivalence remains outside this unit.
-
-- 2026-10-31: 2856 record schemas, deterministic JSON loader, integrity checker/CLI, and source fence implemented with rule-specific tests. Filesystem I/O is isolated in scripts/files.ts, imported relatively by the loader to preserve the src import fence; loadRecords returns parallel unknown records and file diagnostics so invalid JSON remains checkable.
-
-- 2026-10-31: package scaffolded by the Knowledge & Technology keeper (ids helper only).
+- 2026-11-01: 2941 rewrote `test/kd1-dynamic.test.ts` (KD-1c main, KD-1g by q only, KD-1h at fixed holder share); parked halves skipped.
+- 2026-11-01: 2907 added seeded aggregate KD-1 runner/runCase (`src/kd1.ts`); KD-1a/b/i tests pass.
+- 2026-11-01: 2906 derived society media availability from deployment.
+- 2026-11-01: 2905 added aggregate invention hazard and Bass adoption.
+- 2026-11-01: 2904 added pure diffusion channel hazards.
+- 2026-10-31: 2862 moved filesystem loader to scripts; fence test.
+- 2026-10-31: 2860 KD-1 static tests (kd1-static); 2858 capability predicates and diffs.
+- 2026-10-31: 2857 stock, loss/regain events, Henrich copying loss; 2856 schemas, loader, checker, fence.
+- 2026-10-31: package scaffolded by the keeper.
 
 ## Blocked
 
+- 2026-11-01 (2941): KD-1d skipped: the runner's invention hazard has no tau dependence (DESIGN §1.5); needs a tacitShare knob.
+- 2026-11-01 (2941): KD-1g cost-advantage half skipped: no knob maps cost advantage to adoption speed (adopters only gates on > 0); contact half runs via adoption.q.
+- 2026-11-01 (2941): KD-1h 'A loses k before contact reaches B' skipped: runner lacks a contact start time; loss-share half runs at a fixed 4 % holder share.
+- 2026-11-01 (2941): KD-1c 'never invented when L_B = 0' skipped: conflicts with DESIGN §1.5 (trial needs only P and not-I); B invents with invention on.
 - 2026-11-01 (2907): KD-1e/f runner tests deferred per task's keeper-decision hold. No generation/copying window is assumed (DESIGN §1.2 leaves it open); agent/aggregate equivalence and remaining case acceptance tests await later tasks. The runner models first method acquisition with one B representative, fixed records/readers and source-only mortality; it does not model cohort growth or live ports.
 
 - 2026-10-31 (2860): Task brief KD-1a asks for every capability state false in B on the stock fixture, but `fixtures/kd-1/world.json` reports B reach and feasibility true, so `capabilityState` correctly leaves `possible: true` (DESIGN §1.1). Test asserts empty B stock and false known/invented/adopted with `deployed: null`. Resolving the brief vs fixture needs a keeper change, not `src/`.

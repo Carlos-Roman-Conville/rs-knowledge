@@ -8,6 +8,9 @@ export { checkRecords } from './check.ts'
 export type { HolderReport, RecordReport, ReaderReport, DepartureReport } from './ports.ts'
 export type { StockEntry, StockInputs, StockEvent } from './stock.ts'
 export { computeStock, diffStock } from './stock.ts'
+export type { FeasibilityReport, ReachReport, ProductionReport } from './ports.ts'
+export type { CapabilityState, CapabilityChange } from './capability.ts'
+export { capabilityState, capabilityStates, diffCapability } from './capability.ts'
 export { EULER_GAMMA, expectedSkillChange, criticalSize } from './copying.ts'
 
 /** The engine prefix every knowledge id carries. */

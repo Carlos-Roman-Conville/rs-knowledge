@@ -25,3 +25,19 @@ export type DepartureReport = {
   society: string
   cause: 'death' | 'departure' | 'forgetting'
 }
+
+/** Reality's physical feasibility for one recipe in one society. */
+export type FeasibilityReport = { society: string; recipe: string; feasible: boolean | null }
+
+/** Economy and Reality's assessment of access to all of a recipe's inputs. */
+export type ReachReport = { society: string; recipe: string; reachable: boolean | null }
+
+/** Economy's production snapshot, unique per society and technique. */
+export type ProductionReport = {
+  society: string
+  technique: string
+  producersUsing: number
+  successes: number
+  /** Output from the technique's recipes / the good's output, in [0, 1]; null if unknown. */
+  share: number | null
+}

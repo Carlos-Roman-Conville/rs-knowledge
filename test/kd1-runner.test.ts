@@ -153,7 +153,7 @@ describe('DESIGN §3 KD-1 aggregate runner', () => {
     c.diffusion.piRead = fiction(1)
     const read = runKd1(c, 0)
     expect(read.firstArrival).toBe(c.dt)
-    expect(read.statesB[1].state).toMatchObject({ known: true, invented: false, adopted: false, deployed: null })
+    expect(read.statesB[1].state).toMatchObject({ known: true, invented: true, deployed: null })
     c.invention = { on: true, experimentHours: 100000, q: fiction(1) }
     const trial = runKd1(c, 0)
     expect(trial.statesB[1].state).toMatchObject({ known: true, invented: true, adopted: true, deployed: null })

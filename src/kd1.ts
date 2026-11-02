@@ -81,7 +81,8 @@ function occurs(hazard: number, dt: number, draw: RandomStream): boolean {
  * moving/counting an A mind twice. Source prevalence is constant unless mortality is on.
  * Mortality precedes transmission; diffusion precedes trial and Bass adoption. At most
  * one B representative holds each item; this runner models first acquisition, not headcount growth.
- * Records transfer explicit skill only; trial/inference/apprenticeship report a local success.
+ * Records transfer explicit skill; at or above minSkill that counts as a local success (§3 KD-1c). Trial,
+ * inference, and apprenticeship also report a local success.
  * No output production is inferred from adoption, and no generation/copying window is assumed.
  */
 export function runKd1(config: Kd1Config, seed: number): Kd1Result {
@@ -165,7 +166,11 @@ export function runKd1(config: Kd1Config, seed: number): Kd1Result {
     if (occurs(hm, contactDt, migration)) demonstrate()
     if (occurs(ht, contactDt, talk)) principles()
     if (occurs(hi, contactDt, inference)) demonstrate()
-    if (occurs(hr, contactDt, reading)) { principles(); learn(k, explicitSkill!) }
+    if (occurs(hr, contactDt, reading)) {
+      principles()
+      learn(k, explicitSkill!)
+      if (explicitSkill! >= minimum) successes++
+    }
     let current = state()
     if (occurs(inventionHazard(current, c.invention.experimentHours, c.invention.q, !c.invention.on), c.dt, trial)) {
       demonstrate()

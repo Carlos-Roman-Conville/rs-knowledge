@@ -53,7 +53,7 @@ function recordsOnlyBase(): Kd1Config {
   c.contact.records = 400
   c.literacyB = 0.4
   c.diffusion.piRead = fiction(1)
-  c.invention = { on: true, experimentHours: 200, q: fiction(0.002) }
+  c.invention = { on: false, experimentHours: 0, q: open }
   c.records = []
   c.readers = structuredClone(world.readers)
   return c
@@ -96,22 +96,17 @@ function meanSpan10to90(batch: Kd1CaseResult, m: number, dt: number): number | n
 
 describe('KD-1c records only, low tacit share', () => {
   it(
-    'DESIGN §3 KD-1c: B becomes known then invented after trial',
+    'DESIGN §3 KD-1c: B becomes known and invented from records when explicit skill reaches minSkill',
     () => {
+    // Fixture numbers are fiction (level 6), not empirical calibration.
     const c = recordsOnlyBase()
     c.technique.tacitShare = fiction(0.1)
     const batch = runCase(c, seeds)
     expect(batch.censored).toBe(0)
     for (const result of batch.results) {
-      const inventedIndex = result.statesB.findIndex(s => s.state.invented)
-      expect(inventedIndex).toBeGreaterThan(0)
-      const previous = result.statesB[inventedIndex - 1].state
-      const current = result.statesB[inventedIndex].state
-      expect(current.known && current.invented).toBe(true)
-      expect(previous.invented).toBe(false)
-      if (inventedIndex > 1) {
-        expect(previous.known).toBe(true)
-      }
+      const final = result.statesB.at(-1)!
+      expect(final.state.known && final.state.invented).toBe(true)
+      expect(result.firstArrival).not.toBeNull()
     }
     },
     60_000,
@@ -119,11 +114,41 @@ describe('KD-1c records only, low tacit share', () => {
 })
 
 describe('KD-1c literacy zero', () => {
-  it.skip('DESIGN §3 KD-1c: never invented when L_B = 0; conflicts with DESIGN §1.5 (trial invention needs only P and not-I, and B still invents with invention on)', () => {})
+  it(
+    'DESIGN §3 KD-1c: L_B = 0 leaves B never known nor invented',
+    () => {
+    // Fixture numbers are fiction (level 6), not empirical calibration.
+    const c = recordsOnlyBase()
+    c.technique.tacitShare = fiction(0.1)
+    c.literacyB = 0
+    const batch = runCase(c, seeds)
+    expect(batch.censored).toBe(seeds.length)
+    for (const result of batch.results) {
+      expect(result.firstArrival).toBeNull()
+      expect(result.statesB.every(s => !s.state.known && !s.state.invented && s.holders === 0)).toBe(true)
+    }
+    },
+    60_000,
+  )
 })
 
 describe('KD-1d records only, high tacit share', () => {
-  it.skip('DESIGN §3 KD-1d: runner invention hazard does not scale with tacitShare (DESIGN §1.5)', () => {})
+  it(
+    'DESIGN §3 KD-1d: B becomes known but never invented when explicit skill stays below minSkill',
+    () => {
+    // Fixture numbers are fiction (level 6), not empirical calibration.
+    const c = recordsOnlyBase()
+    c.technique.tacitShare = fiction(0.6)
+    const batch = runCase(c, seeds)
+    expect(batch.censored).toBe(0)
+    for (const result of batch.results) {
+      const final = result.statesB.at(-1)!
+      expect(final.state.known).toBe(true)
+      expect(final.state.invented).toBe(false)
+    }
+    },
+    60_000,
+  )
 })
 
 function meanAdoptionCurve(batch: Kd1CaseResult): number[] {
@@ -180,10 +205,61 @@ describe('KD-1g cost advantage', () => {
 })
 
 describe('KD-1h loss before contact', () => {
-  it.skip('DESIGN §3 KD-1h: A loses k before contact reaches B; runner has no contact start time knob', () => {})
+  it(
+    'DESIGN §3 KD-1h: A can lose k before contact; fewer such seeds when N_A is larger at fixed holder share',
+    () => {
+    // Fixture numbers are fiction (level 6), not empirical calibration.
+    function beforeContactCase(populationA: number, holdersA: number): Kd1CaseResult {
+      const c = caseStub()
+      c.populationA = populationA
+      c.holdersA = holdersA
+      c.contact.migrants = 60
+      c.diffusion.piPractise = fiction(0.12)
+      c.contactStart = 10
+      c.mortality = { on: true, rate: fiction(0.1) }
+      c.invention.on = false
+      c.steps = 900
+      c.records = []
+      return runCase(c, seeds)
+    }
+
+    const small = beforeContactCase(12, 1)
+    const large = beforeContactCase(48, 4)
+    const lostBeforeB = (batch: Kd1CaseResult) =>
+      batch.results.filter(result => result.lostA !== null && result.firstArrival === null).length / seeds.length
+    const smallShare = lostBeforeB(small)
+    const largeShare = lostBeforeB(large)
+    expect(smallShare).toBeGreaterThan(0)
+    expect(largeShare).toBeLessThan(smallShare)
+    for (const result of small.results) {
+      if (result.lostA === null || result.firstArrival !== null) continue
+      expect(result.lostA.causes).toContain('death')
+      expect(result.lostA.item).toBe(k)
+      expect(result.lostA.society).toBe('A')
+    }
+
+    const withRecord = caseStub()
+    withRecord.populationA = 6
+    withRecord.holdersA = 1
+    withRecord.contact.migrants = 0
+    withRecord.contact.records = 250
+    withRecord.contactStart = 4
+    withRecord.literacyB = 0.5
+    withRecord.diffusion.piRead = fiction(1)
+    withRecord.technique.tacitShare = fiction(0.1)
+    withRecord.mortality = { on: true, rate: fiction(0.2) }
+    withRecord.invention.on = false
+    withRecord.steps = 600
+    withRecord.records = structuredClone(world.records)
+    const recordBatch = runCase(withRecord, seeds)
+    expect(recordBatch.results.some(r => r.statesB.at(-1)!.state.known)).toBe(true)
+    },
+    120_000,
+  )
   it(
     'DESIGN §3 KD-1h: loss share falls as N_A grows at a fixed 4 % holder share; record survival keeps A known not invented',
     () => {
+    // Fixture numbers are fiction (level 6), not empirical calibration.
     // Holder share is fixed at 4 % of N_A, so a larger society has more holders.
     function lossCase(populationA: number, holdersA: number): Kd1CaseResult {
       const c = caseStub()

@@ -122,10 +122,24 @@ export function runKd1(config: Kd1Config, seed: number): Kd1Result {
   const reach = c.technique.methods.flat().map(({ recipe }) => ({ society: b, recipe, reachable: c.possibleB }))
   let populationA = c.populationA
   let successes = 0, adopted = 0
-  const snapshot = (): StockInputs => ({ holders: [...source, ...target.values()], records, readers })
-  const state = (): CapabilityState => capabilityState(c.technique, b,
-    computeStock(snapshot().holders, records, readers), feasibility, reach,
-    [{ society: b, technique: k, successes, producersUsing: adopted, share: null }])
+  let tick = 0
+  // fixture: complete by construction, including nonholders and the B learner.
+  const othersA = Array.from({ length: c.populationA - c.holdersA }, (_, i) => `${a}/kd1-other/${i}`)
+  const peopleA = new Set([...source.map(holder => holder.mind), ...othersA])
+  const peopleB = [`${b}/kd1-learner`, ...Array.from({ length: c.populationB - 1 }, (_, i) => `${b}/kd1-other/${i}`)]
+  const snapshot = (): StockInputs => {
+    const rosters = [{ society: a, people: [...peopleA], tick },
+      { society: b, people: [...peopleB], tick }]
+    return { holders: [...source, ...target.values()], records, readers, tick, rosters,
+      reportedMinds: rosters.map(({ society, people }) => ({ society, minds: [...people], tick })),
+      pairs: [a, b].flatMap(society => [k, ...c.technique.propositions].map(item => ({ society, item }))) }
+  }
+  const state = (): CapabilityState => {
+    const inputs = snapshot()
+    return capabilityState(c.technique, b,
+      computeStock(inputs.holders, records, readers, inputs), feasibility, reach,
+      [{ society: b, technique: k, successes, producersUsing: adopted, share: null }])
+  }
   const learn = (item: string, learnedSkill: number | null) => {
     const old = target.get(item)
     target.set(item, { mind: `${b}/kd1-learner`, society: b, item, level: 'holds',
@@ -135,11 +149,12 @@ export function runKd1(config: Kd1Config, seed: number): Kd1Result {
   const demonstrate = () => { principles(); learn(k, skill); successes++ }
   const result: Kd1Result = {
     seed, stubs: ['Cognition aggregate holders/readers', 'Economy incentive/records/production',
-      'Life source-holder mortality', 'Reality feasibility/reach', 'Society contact/literacy'],
+      'Life source-holder mortality', 'Reality feasibility/reach', 'Society contact/literacy', 'fixture: complete by construction'],
     statesB: [{ step: 0, time: 0, state: state(), holders: 0 }],
     firstArrival: null, lostA: null, adoptionCurve: [0],
   }
   for (let step = 1; step <= c.steps; step++) {
+    tick = step
     const time = step * c.dt
     if (mortality > 0 && source.length > 0) {
       const before = snapshot()
@@ -147,6 +162,7 @@ export function runKd1(config: Kd1Config, seed: number): Kd1Result {
       source = source.filter(holder => {
         if (!occurs(mortality, c.dt, random.get('knowledge.collective.stock', holder.mind))) return true
         departures.push({ mind: holder.mind, society: a, cause: 'death' })
+        peopleA.delete(holder.mind)
         return false
       })
       populationA -= departures.length

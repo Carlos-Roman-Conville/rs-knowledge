@@ -1,3 +1,4 @@
+import { completeSnapshotStub } from './stock-stubs.ts'
 import { expect, it } from 'vitest'
 import { capabilityState, capabilityStates, diffCapability } from '../src/index.ts'
 import type { CapabilityState, FeasibilityReport, ProductionReport, ReachReport, StockEntry } from '../src/index.ts'
@@ -17,12 +18,13 @@ const productionStub = (patch: Partial<ProductionReport> = {}): ProductionReport
 })
 const stockStub = (patch: Partial<StockEntry> = {}): StockEntry => ({
   society, item: method.id, holders: 1, heardOf: 0, bestSkill: 0.5,
-  readableRecords: 0, unreadableRecords: 0, known: true, ...patch,
+  readableRecords: 0, unreadableRecords: 0, availability: true,
+  coverage: 1, tick: 0, partial: false, notApplicable: false, unknowns: [], ...patch,
 })
 const evaluate = (
   stock: readonly StockEntry[] = [], feasibility: readonly FeasibilityReport[] = [],
   reach: readonly ReachReport[] = [], production: readonly ProductionReport[] = [],
-) => capabilityState(method, society, stock, feasibility, reach, production)
+) => capabilityState(method, society, stock, feasibility, reach, production, completeSnapshotStub())
 
 it('DESIGN §1.1 possible requires feasibility and reach for every mandatory recipe in a method', () => {
   const second = 'economy/recipe.second'
@@ -50,21 +52,21 @@ it('DESIGN §1.1 missing or null reports and absent recipe links never default p
   expect(capabilityState({ ...method, methods: [] }, society, [], [], [], []).possible).toBeNull()
 })
 
-it('DESIGN §1.1 known accepts the technique own known stock, including readable records alone', () => {
-  expect(evaluate([stockStub()]).known).toBe(true)
-  expect(evaluate([stockStub({ holders: 0, bestSkill: null, readableRecords: 1 })]).known).toBe(true)
-  expect(evaluate([stockStub({ known: false })]).known).toBe(false)
+it('DESIGN §1.1 availability accepts the technique own availability stock, including readable records alone', () => {
+  expect(evaluate([stockStub()]).availability).toBe(true)
+  expect(evaluate([stockStub({ holders: 0, bestSkill: null, readableRecords: 1 })]).availability).toBe(true)
+  expect(evaluate([stockStub({ availability: false })]).availability).toBe(false)
 })
 
-it('DESIGN §1.1 known otherwise requires every proposition and a nonempty proposition list', () => {
+it('DESIGN §1.1 availability otherwise requires every proposition and a nonempty proposition list', () => {
   const other = 'knowledge/proposition.other'
   const multi = { ...method, propositions: [...method.propositions, other] }
   const principle = stockStub({ item: method.propositions[0], bestSkill: null })
-  expect(evaluate([principle]).known).toBe(true)
-  expect(capabilityState(multi, society, [principle], [], [], []).known).toBe(false)
-  expect(capabilityState(multi, society, [principle, stockStub({ item: other, known: false })], [], [], []).known).toBe(false)
-  expect(capabilityState(multi, society, [principle, stockStub({ item: other })], [], [], []).known).toBe(true)
-  expect(capabilityState({ ...method, propositions: [] }, society, [], [], [], []).known).toBe(false)
+  expect(evaluate([principle]).availability).toBe(true)
+  expect(capabilityState(multi, society, [principle], [], [], []).availability).toBeNull()
+  expect(capabilityState(multi, society, [principle, stockStub({ item: other, availability: false })], [], [], [], completeSnapshotStub()).availability).toBe(false)
+  expect(capabilityState(multi, society, [principle, stockStub({ item: other })], [], [], []).availability).toBe(true)
+  expect(capabilityState({ ...method, propositions: [] }, society, [], [], [], []).availability).toBeNull()
 })
 
 it('KNT-Q1 invented requires own method skill at or above minSkill and a local success', () => {
@@ -109,19 +111,19 @@ it('DESIGN §1.1 scopes every port and stock lookup to its society and item', ()
   )).toEqual({ society, technique: method.id, possible: null, unknowns: [
     { state: 'possible', input: `feasibility of ${method.methods[0][0].recipe}`, producer: 'reality' },
     { state: 'possible', input: `reach of ${method.methods[0][0].recipe}`, producer: 'economy/reality' },
-  ], known: false, invented: false, adopted: false, deployed: null })
+  ], availability: false, invented: false, adopted: false, deployed: null })
   expect(evaluate([], [feasibilityStub(), feasibilityStub({ feasible: false, recipe: 'other' })],
     [reachStub(), reachStub({ reachable: false, society: elsewhere })]).possible).toBe(true)
 })
 
-it('DESIGN §0 invariant 6: migrant method skill and success can make invented true while known is false', () => {
-  expect(evaluate([stockStub({ known: false })], [], [], [productionStub({ producersUsing: 0, share: null })]))
-    .toMatchObject({ known: false, invented: true, adopted: false, deployed: null })
+it('DESIGN §0 invariant 6: migrant method skill and success can make invented true while availability is false', () => {
+  expect(evaluate([stockStub({ availability: false })], [], [], [productionStub({ producersUsing: 0, share: null })]))
+    .toMatchObject({ availability: false, invented: true, adopted: false, deployed: null })
 })
 
 it('DESIGN §0 invariant 6: earlier bought stock permits adopted while possible is false', () => {
   expect(evaluate([], [feasibilityStub()], [reachStub({ reachable: false })], [productionStub()]))
-    .toMatchObject({ possible: false, adopted: true, invented: false, known: false })
+    .toMatchObject({ possible: false, adopted: true, invented: false, availability: false })
 })
 
 it('DESIGN §1.1 every state can fall and diff reports each field in state order', () => {
@@ -130,9 +132,9 @@ it('DESIGN §1.1 every state can fall and diff reports each field in state order
     [productionStub({ producersUsing: 0, successes: 0, share: 0 })])
   expect(diffCapability([prev], [next])).toEqual([
     { society, technique: method.id, state: 'adopted', from: true, to: false },
+    { society, technique: method.id, state: 'availability', from: true, to: false },
     { society, technique: method.id, state: 'deployed', from: 0.5, to: 0 },
     { society, technique: method.id, state: 'invented', from: true, to: false },
-    { society, technique: method.id, state: 'known', from: true, to: false },
     { society, technique: method.id, state: 'possible', from: true, to: false },
   ])
   expect(diffCapability([next], [prev])).toEqual(diffCapability([prev], [next]).map(change => ({
@@ -144,11 +146,12 @@ it('DESIGN §1.1 every state can fall and diff reports each field in state order
 it('DESIGN §1.1 diff retains null transitions and treats missing pairs as unreported', () => {
   const state = evaluate([], [feasibilityStub()], [reachStub()], [productionStub({ producersUsing: 0 })])
   const expected = [
+    { society, technique: method.id, state: 'availability', from: null, to: false },
     { society, technique: method.id, state: 'deployed', from: null, to: 0.5 },
     { society, technique: method.id, state: 'possible', from: null, to: true },
   ]
   expect(diffCapability([], [state])).toEqual(expected)
-  expect(diffCapability([evaluate()], [state])).toEqual(expected)
+  expect(diffCapability([evaluate()], [state])).toEqual(expected.filter(change => change.state !== 'availability'))
   expect(diffCapability([state], [])).toEqual(expected.map(change => ({ ...change, from: change.to, to: change.from })))
   expect(diffCapability([], [])).toEqual([])
 })
@@ -160,20 +163,20 @@ it('DESIGN §0 deterministic batch and diff sort by society, technique, state wi
   const feasibility = Object.freeze([feasibilityStub({ society: 'society.z' }), feasibilityStub()])
   const reach = Object.freeze([reachStub({ society: 'society.z' }), reachStub()])
   const production = Object.freeze([productionStub({ society: 'society.z' }), productionStub()])
-  const result = capabilityStates(techniques, societies, stock, feasibility, reach, production)
+  const result = capabilityStates(techniques, societies, stock, feasibility, reach, production, completeSnapshotStub())
   expect(result.map(state => [state.society, state.technique])).toEqual([
     [society, method.id], [society, 'knowledge/technique.z'], ['society.z', method.id], ['society.z', 'knowledge/technique.z'],
   ])
   expect(capabilityStates([...techniques].reverse(), [...societies].reverse(), [...stock].reverse(),
-    [...feasibility].reverse(), [...reach].reverse(), [...production].reverse())).toEqual(result)
+    [...feasibility].reverse(), [...reach].reverse(), [...production].reverse(), completeSnapshotStub())).toEqual(result)
   const empty = capabilityStates(techniques, societies, [], [], [], [])
   const changes = diffCapability(empty, result)
   expect(diffCapability([...empty].reverse(), [...result].reverse())).toEqual(changes)
   const labels = changes.map(change => `${change.society}/${change.technique}/${change.state}`)
   expect(labels).toEqual([...labels].sort())
   const saved: CapabilityState[] = result.map(state => ({ ...state }))
-  result[0].known = false
-  expect(capabilityStates(techniques, societies, stock, feasibility, reach, production)).toEqual(saved)
+  result[0].availability = false
+  expect(capabilityStates(techniques, societies, stock, feasibility, reach, production, completeSnapshotStub())).toEqual(saved)
   expect(capabilityStates([], societies, [], [], [], [])).toEqual([])
   expect(capabilityStates(techniques, [], [], [], [], [])).toEqual([])
 })
@@ -244,4 +247,14 @@ it('PLAN KN-1: unknowns sort independently of method order and are ignored by di
   expect(evaluate([], [feasibilityStub()], []).unknowns).toEqual([
     { state: 'possible', input: `reach of ${method.methods[0][0].recipe}`, producer: 'economy/reality' },
   ])
+})
+
+it('PLAN card KN-2: availability preserves unknown stock and uses three-valued proposition conjunction', () => {
+  expect(evaluate([stockStub({ availability: null })]).availability).toBeNull()
+  const multi = { ...method, propositions: ['p', 'q'] }
+  const own = stockStub({ availability: false })
+  expect(capabilityState(multi, society, [own, stockStub({ item: 'p' })], [], [], []).availability).toBeNull()
+  expect(capabilityState(multi, society, [own, stockStub({ item: 'p', availability: false })], [], [], []).availability).toBe(false)
+  expect(capabilityState(multi, society, [own, stockStub({ item: 'p' }), stockStub({ item: 'q' })], [], [], []).availability).toBe(true)
+  expect(capabilityState(method, society, [], [], [], []).availability).toBeNull()
 })

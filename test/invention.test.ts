@@ -6,13 +6,13 @@ import { fiction } from './records.ts'
 // All ids, states, hours and parameter values are fictional aggregate fixtures.
 const state: CapabilityState = {
   society: 'fiction-society', technique: 'fiction-technique', possible: true, unknowns: [],
-  known: false, invented: false, adopted: false, deployed: null,
+  availability: false, invented: false, adopted: false, deployed: null,
 }
 const open: Param = { value: null, label: 'open', sources: [] }
 
-it('DESIGN §1.5: invention is E*q per year without requiring known or deriving capability', () => {
+it('DESIGN §1.5: invention is E*q per year without requiring availability or deriving capability', () => {
   expect(inventionHazard(state, 80, fiction(0.025))).toBe(2)
-  expect(inventionHazard({ ...state, known: true, adopted: true, deployed: 1 }, 80, fiction(0.025))).toBe(2)
+  expect(inventionHazard({ ...state, availability: true, adopted: true, deployed: 1 }, 80, fiction(0.025))).toBe(2)
   expect(inventionHazard(state, 80, fiction(0))).toBe(0)
   expect(inventionHazard(state, 0.5, fiction(1))).toBe(0.5)
 })

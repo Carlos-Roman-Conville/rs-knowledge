@@ -7,7 +7,7 @@ import { fiction } from './records.ts'
 const inputsStub: AdopterInputs = {
   state: {
     society: 'fiction-society', technique: 'fiction-technique', possible: true, unknowns: [],
-    known: false, invented: true, adopted: false, deployed: null,
+    availability: false, invented: true, adopted: false, deployed: null,
   },
   producers: 10, costAdvantage: 2, inReach: true,
 }
@@ -58,7 +58,7 @@ it('DESIGN §1.6 and §0 invariant 6: M requires positive advantage, possibility
   for (const possible of [false, null]) {
     expect(adopters({ ...inputsStub, state: { ...inputsStub.state, possible } })).toBe(0)
   }
-  expect(adopters({ ...inputsStub, state: { ...inputsStub.state, known: true, invented: false } })).toBe(0)
+  expect(adopters({ ...inputsStub, state: { ...inputsStub.state, availability: true, invented: false } })).toBe(0)
 })
 
 it('DESIGN §1.6: shrinking M clamps adoption, including abandonment when advantage reverses', () => {

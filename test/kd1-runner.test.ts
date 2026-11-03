@@ -61,12 +61,12 @@ describe('DESIGN §3 KD-1 aggregate runner', () => {
       c.diffusion = { piPractise: fiction(1), piTell: fiction(1), piInfer: fiction(1), piRead: fiction(1) }
       for (const seed of seeds) {
         const result = runKd1(c, seed)
-        expect(result.statesB.filter(s => s.time < c.contactStart!).every(s => !s.state.known && s.holders === 0)).toBe(true)
-        expect(result.statesB[3].state.known).toBe(true)
+        expect(result.statesB.filter(s => s.time < c.contactStart!).every(s => !s.state.availability && s.holders === 0)).toBe(true)
+        expect(result.statesB[3].state.availability).toBe(true)
         expect(result.firstArrival).toBe(channel === 'contacts' ? null : 3)
       }
       c.contactStart = 4
-      expect(runKd1(c, 0).statesB.every(s => !s.state.known)).toBe(true)
+      expect(runKd1(c, 0).statesB.every(s => !s.state.availability)).toBe(true)
     }
   }, 30_000)
 
@@ -101,7 +101,7 @@ describe('DESIGN §3 KD-1 aggregate runner', () => {
       expect(result.lostA).toBeNull()
       expect(result.adoptionCurve.every(count => count === 0)).toBe(true)
       expect(result.statesB.every(({ state, holders }) => holders === 0 && state.possible === true
-        && !state.known && !state.invented && !state.adopted && state.deployed === null)).toBe(true)
+        && !state.availability && !state.invented && !state.adopted && state.deployed === null)).toBe(true)
     }
     // Possible remains the fixture's independent port flag (the existing keeper decision).
   }, 30_000)
@@ -153,10 +153,10 @@ describe('DESIGN §3 KD-1 aggregate runner', () => {
     c.diffusion.piRead = fiction(1)
     const read = runKd1(c, 0)
     expect(read.firstArrival).toBe(c.dt)
-    expect(read.statesB[1].state).toMatchObject({ known: true, invented: true, deployed: null })
+    expect(read.statesB[1].state).toMatchObject({ availability: true, invented: true, deployed: null })
     c.invention = { on: true, experimentHours: 100000, q: fiction(1) }
     const trial = runKd1(c, 0)
-    expect(trial.statesB[1].state).toMatchObject({ known: true, invented: true, adopted: true, deployed: null })
+    expect(trial.statesB[1].state).toMatchObject({ availability: true, invented: true, adopted: true, deployed: null })
     expect(trial.adoptionCurve[2]).toBeGreaterThan(trial.adoptionCurve[1])
     c.literacyB = 0
     c.invention.on = false
@@ -169,7 +169,7 @@ describe('DESIGN §3 KD-1 aggregate runner', () => {
     c.contact.migrants = 0
     c.contact.contacts = 100000
     c.diffusion.piTell = fiction(1)
-    expect(runKd1(c, 0).statesB[1].state).toMatchObject({ known: true, invented: false })
+    expect(runKd1(c, 0).statesB[1].state).toMatchObject({ availability: true, invented: false })
     c.contact.artefacts = 100000
     c.diffusion.piInfer = fiction(1)
     expect(runKd1(c, 0).statesB[1].state.invented).toBe(true)

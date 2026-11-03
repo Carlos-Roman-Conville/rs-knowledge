@@ -2,14 +2,15 @@ import { and, or } from './unknown.ts'
 import type { Unknown } from './unknown.ts'
 import type { FeasibilityReport, ProductionReport, ReachReport } from './ports.ts'
 import type { TechniqueRecord } from './schema.ts'
-import type { StockEntry } from './stock.ts'
+import { stockCoverage } from './stock.ts'
+import type { StockSnapshot, StockEntry } from './stock.ts'
 
 export type CapabilityState = {
   society: string
   technique: string
   possible: boolean | null
   unknowns: Unknown[]
-  known: boolean
+  availability: boolean | null
   invented: boolean
   adopted: boolean
   deployed: number | null
@@ -20,7 +21,7 @@ export type CapabilityChange = {
   [K in State]: { society: string; technique: string; state: K; from: CapabilityState[K]; to: CapabilityState[K] }
 }[State]
 
-const fields = ['adopted', 'deployed', 'invented', 'known', 'possible'] as const
+const fields = ['adopted', 'availability', 'deployed', 'invented', 'possible'] as const
 const compare = (a: string, b: string) => a < b ? -1 : a > b ? 1 : 0
 const byPair = (a: CapabilityState, b: CapabilityState) => compare(a.society, b.society) || compare(a.technique, b.technique)
 const key = (state: CapabilityState) => JSON.stringify([state.society, state.technique])
@@ -58,7 +59,7 @@ function possible(
 /** DESIGN §1.1: independent predicates, recomputed solely from the current port snapshots. */
 export function capabilityState(
   technique: TechniqueRecord, society: string, stock: readonly StockEntry[],
-  feasibility: readonly FeasibilityReport[], reach: readonly ReachReport[], production: readonly ProductionReport[],
+  feasibility: readonly FeasibilityReport[], reach: readonly ReachReport[], production: readonly ProductionReport[], snapshot?: StockSnapshot,
 ): CapabilityState {
   const minSkill = technique.minSkill.value
   if (minSkill === null) throw new Error(`minSkill is null for ${technique.id}; a researched parameter is required`)
@@ -67,11 +68,16 @@ export function capabilityState(
   if (report?.share != null && (!Number.isFinite(report.share) || report.share < 0 || report.share > 1)) {
     throw new Error('share must be in [0, 1]')
   }
+  const absent = snapshot && stockCoverage(society, snapshot).coverage === 1 ? false : null
+  const available = (item: string) => {
+    const report = stock.find(entry => entry.society === society && entry.item === item)
+    return report ? report.availability : absent
+  }
   return {
     society, technique: technique.id,
     ...possible(technique, society, feasibility, reach),
-    known: entry?.known === true || (technique.propositions.length > 0 && technique.propositions.every(item =>
-      stock.some(entry => entry.society === society && entry.item === item && entry.known))),
+    availability: or([available(technique.id), technique.propositions.length > 0
+      ? and(technique.propositions.map(available)) : false]),
     invented: entry?.bestSkill != null && entry.bestSkill >= minSkill && (report?.successes ?? 0) > 0,
     adopted: (report?.producersUsing ?? 0) > 0,
     deployed: report?.share ?? null,
@@ -80,10 +86,10 @@ export function capabilityState(
 
 export function capabilityStates(
   techniques: readonly TechniqueRecord[], societies: readonly string[], stock: readonly StockEntry[],
-  feasibility: readonly FeasibilityReport[], reach: readonly ReachReport[], production: readonly ProductionReport[],
+  feasibility: readonly FeasibilityReport[], reach: readonly ReachReport[], production: readonly ProductionReport[], snapshot?: StockSnapshot,
 ): CapabilityState[] {
   return societies.flatMap(society => techniques.map(technique =>
-    capabilityState(technique, society, stock, feasibility, reach, production))).sort(byPair)
+    capabilityState(technique, society, stock, feasibility, reach, production, snapshot))).sort(byPair)
 }
 
 /** Missing pairs have no reported knowledge/use and unknown possibility/deployment. */
@@ -93,7 +99,7 @@ export function diffCapability(prev: readonly CapabilityState[], next: readonly 
   const changes: CapabilityChange[] = []
   for (const id of new Set([...before.keys(), ...after.keys()])) {
     const { society, technique } = (after.get(id) ?? before.get(id))!
-    const empty: CapabilityState = { society, technique, possible: null, unknowns: [], known: false, invented: false, adopted: false, deployed: null }
+    const empty: CapabilityState = { society, technique, possible: null, unknowns: [], availability: null, invented: false, adopted: false, deployed: null }
     const old = before.get(id) ?? empty
     const current = after.get(id) ?? empty
     for (const state of fields) {

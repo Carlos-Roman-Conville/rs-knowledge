@@ -2,10 +2,12 @@ import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 import { capabilityState, computeStock, runCase, runKd1 } from '../src/index.ts'
 import type { Kd1Config, Kd1CaseResult, Param, TechniqueRecord } from '../src/index.ts'
-import type { HolderReport, ReaderReport, RecordReport } from '../src/ports.ts'
+import type { RosterReport, ReportedMindsReport, HolderReport, ReaderReport, RecordReport } from '../src/ports.ts'
 import { fiction } from './records.ts'
 
 const world = JSON.parse(readFileSync(new URL('../fixtures/kd-1/world.json', import.meta.url), 'utf8')) as {
+  rosters: RosterReport[]
+  reportedMinds: ReportedMindsReport[]
   societies: { id: string; population: number }[]
   holders: HolderReport[]
   records: RecordReport[]
@@ -96,7 +98,7 @@ function meanSpan10to90(batch: Kd1CaseResult, m: number, dt: number): number | n
 
 describe('KD-1c records only, low tacit share', () => {
   it(
-    'DESIGN §3 KD-1c: B becomes known and invented from records when explicit skill reaches minSkill',
+    'DESIGN §3 KD-1c: B becomes availability and invented from records when explicit skill reaches minSkill',
     () => {
     // Fixture numbers are fiction (level 6), not empirical calibration.
     const c = recordsOnlyBase()
@@ -105,7 +107,7 @@ describe('KD-1c records only, low tacit share', () => {
     expect(batch.censored).toBe(0)
     for (const result of batch.results) {
       const final = result.statesB.at(-1)!
-      expect(final.state.known && final.state.invented).toBe(true)
+      expect(final.state.availability && final.state.invented).toBe(true)
       expect(result.firstArrival).not.toBeNull()
     }
     },
@@ -115,7 +117,7 @@ describe('KD-1c records only, low tacit share', () => {
 
 describe('KD-1c literacy zero', () => {
   it(
-    'DESIGN §3 KD-1c: L_B = 0 leaves B never known nor invented',
+    'DESIGN §3 KD-1c: L_B = 0 leaves B never availability nor invented',
     () => {
     // Fixture numbers are fiction (level 6), not empirical calibration.
     const c = recordsOnlyBase()
@@ -125,7 +127,7 @@ describe('KD-1c literacy zero', () => {
     expect(batch.censored).toBe(seeds.length)
     for (const result of batch.results) {
       expect(result.firstArrival).toBeNull()
-      expect(result.statesB.every(s => !s.state.known && !s.state.invented && s.holders === 0)).toBe(true)
+      expect(result.statesB.every(s => !s.state.availability && !s.state.invented && s.holders === 0)).toBe(true)
     }
     },
     60_000,
@@ -134,7 +136,7 @@ describe('KD-1c literacy zero', () => {
 
 describe('KD-1d records only, high tacit share', () => {
   it(
-    'DESIGN §3 KD-1d: B becomes known but never invented when explicit skill stays below minSkill',
+    'DESIGN §3 KD-1d: B becomes availability but never invented when explicit skill stays below minSkill',
     () => {
     // Fixture numbers are fiction (level 6), not empirical calibration.
     const c = recordsOnlyBase()
@@ -143,7 +145,7 @@ describe('KD-1d records only, high tacit share', () => {
     expect(batch.censored).toBe(0)
     for (const result of batch.results) {
       const final = result.statesB.at(-1)!
-      expect(final.state.known).toBe(true)
+      expect(final.state.availability).toBe(true)
       expect(final.state.invented).toBe(false)
     }
     },
@@ -252,12 +254,12 @@ describe('KD-1h loss before contact', () => {
     withRecord.steps = 600
     withRecord.records = structuredClone(world.records)
     const recordBatch = runCase(withRecord, seeds)
-    expect(recordBatch.results.some(r => r.statesB.at(-1)!.state.known)).toBe(true)
+    expect(recordBatch.results.some(r => r.statesB.at(-1)!.state.availability)).toBe(true)
     },
     120_000,
   )
   it(
-    'DESIGN §3 KD-1h: loss share falls as N_A grows at a fixed 4 % holder share; record survival keeps A known not invented',
+    'DESIGN §3 KD-1h: loss share falls as N_A grows at a fixed 4 % holder share; record survival keeps A availability not invented',
     () => {
     // Fixture numbers are fiction (level 6), not empirical calibration.
     // Holder share is fixed at 4 % of N_A, so a larger society has more holders.
@@ -311,10 +313,14 @@ describe('KD-1h loss before contact', () => {
       reachable: true,
     }))
     const production = world.production.filter(p => p.society === 'A')
-    const stock = computeStock(holdersAfterDeath, world.records, world.readers)
+    // fixture: complete by construction after the holder deaths at step 1.
+    const dead = new Set(world.holders.filter(h => h.society === 'A' && h.item === k && h.level === 'holds').map(h => h.mind))
+    const rosters = world.rosters.map(r => ({ ...r, tick: 1, people: r.people!.filter(mind => !dead.has(mind)) }))
+    const reportedMinds = rosters.map(r => ({ society: r.society, minds: [...r.people], tick: 1 }))
+    const stock = computeStock(holdersAfterDeath, world.records, world.readers, { tick: 1, rosters, reportedMinds })
     expect(
       capabilityState(technique, 'A', stock, feasibility, reach, production),
-    ).toMatchObject({ known: true, invented: false })
+    ).toMatchObject({ availability: true, invented: false })
     },
     120_000,
   )

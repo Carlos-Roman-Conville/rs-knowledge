@@ -1,21 +1,22 @@
+import { computeStock } from './stock-stubs.ts'
 import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { expect, it } from 'vitest'
-import { computeStock, diffStock } from '../src/index.ts'
+import { diffStock } from '../src/index.ts'
 import { holderStub, inputsStub, readerStub, recordStub } from './stock-stubs.ts'
 
 it('DUP-61 (1): reports alone determine the stock; nothing persists between calls', () => {
   expect(computeStock([], [], [])).toEqual([])
-  expect(computeStock([holderStub()], [], [])[0].known).toBe(true)
+  expect(computeStock([holderStub()], [], [])[0].availability).toBe(true)
   expect(computeStock([], [], [])).toEqual([])
-  expect(computeStock([], [recordStub()], [readerStub()])[0].known).toBe(true)
+  expect(computeStock([], [recordStub()], [readerStub()])[0].availability).toBe(true)
   expect(computeStock([], [], [])).toEqual([])
 })
 
 it('DUP-61 (2): the last holder dies without a surviving record, so knowledge is lost', () => {
   const prev = inputsStub({ holders: [holderStub()] })
-  expect(diffStock(prev, inputsStub(), [{ mind: 'mind.a', society: 'society.a', cause: 'death' }])).toEqual([
+  expect(diffStock(prev, inputsStub({ pairs: [{ society: 'society.a', item: 'item.a' }] }), [{ mind: 'mind.a', society: 'society.a', cause: 'death' }])).toEqual([
     { society: 'society.a', item: 'item.a', kind: 'lost', causes: ['death'] },
   ])
 })
@@ -23,17 +24,17 @@ it('DUP-61 (2): the last holder dies without a surviving record, so knowledge is
 it('DUP-61 (2a): a readable record keeps knowledge after the last holder dies', () => {
   const next = inputsStub({ records: [recordStub()], readers: [readerStub()] })
   const prev = { ...next, holders: [holderStub()] }
-  expect(computeStock(next.holders, next.records, next.readers)[0]).toMatchObject({ holders: 0, known: true })
+  expect(computeStock(next.holders, next.records, next.readers)[0]).toMatchObject({ holders: 0, availability: true })
   expect(diffStock(prev, next, [{ mind: 'mind.a', society: 'society.a', cause: 'death' }])).toEqual([
     { society: 'society.a', item: 'item.a', kind: 'holders_gone_record_survives', causes: ['death'] },
   ])
 })
 
-it('DUP-61 (2b): an intact unreadable record becomes known again when a reader appears', () => {
+it('DUP-61 (2b): an intact unreadable record becomes availability again when a reader appears', () => {
   const prev = inputsStub({ records: [recordStub()] })
   const next = { ...prev, readers: [readerStub()] }
-  expect(computeStock(prev.holders, prev.records, prev.readers)[0]).toMatchObject({ known: false, unreadableRecords: 1 })
-  expect(computeStock(next.holders, next.records, next.readers)[0]).toMatchObject({ known: true, unreadableRecords: 0 })
+  expect(computeStock(prev.holders, prev.records, prev.readers)[0]).toMatchObject({ availability: false, unreadableRecords: 1 })
+  expect(computeStock(next.holders, next.records, next.readers)[0]).toMatchObject({ availability: true, unreadableRecords: 0 })
   expect(diffStock(prev, next, [])).toEqual([
     { society: 'society.a', item: 'item.a', kind: 'regained', causes: [] },
   ])

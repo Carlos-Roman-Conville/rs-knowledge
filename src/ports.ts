@@ -54,3 +54,9 @@ export type ProductionReport = {
   /** Output from the technique's recipes / the good's output, in [0, 1]; null if unknown. */
   share: number | null
 }
+
+/** Cognition: people whose reports belong to this simulation snapshot. */
+export type ReportedMindsReport = { society: string; minds: string[]; tick: number }
+
+/** Society: applicable membership, independent of Cognition reports. */
+export type RosterReport = { society: string; people: string[] | null; tick: number }

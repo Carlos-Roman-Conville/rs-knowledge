@@ -6,7 +6,7 @@ import {
   capabilityStates, computeStock, diffCapability, diffStock,
 } from '../src/index.ts'
 import type {
-  DepartureReport, FeasibilityReport, HolderReport, ProductionReport,
+  RosterReport, ReportedMindsReport, StockSnapshot, DepartureReport, FeasibilityReport, HolderReport, ProductionReport,
   ReachReport, ReaderReport, RecordReport, TechniqueRecord,
 } from '../src/index.ts'
 import { loadRecords } from '../scripts/load.ts'
@@ -15,7 +15,9 @@ import { isObject } from '../src/schema.ts'
 const repoRoot = fileURLToPath(new URL('../', import.meta.url))
 const TECHNIQUE_ID = 'knowledge/technique.fixture-lime-burning'
 
-type WorldFixture = {
+type WorldFixture = StockSnapshot & {
+  rosters: RosterReport[]
+  reportedMinds: ReportedMindsReport[]
   societies: { id: string; population: number }[]
   holders: HolderReport[]
   records: RecordReport[]
@@ -38,7 +40,16 @@ const loadTechnique = (): TechniqueRecord => {
 
 const clone = <T>(value: T): T => structuredClone(value)
 
-const stock = (world: WorldFixture) => computeStock(world.holders, world.records, world.readers)
+// fixture: complete by construction at each step, with Society departures applied.
+const atStep = (world: WorldFixture, tick: number, departures: DepartureReport[] = []) => {
+  world.tick = tick
+  world.rosters = world.rosters.map(roster => ({ ...roster, tick,
+    people: roster.people!.filter(mind => !departures.some(d => d.society === roster.society && d.mind === mind)),
+  }))
+  world.reportedMinds = world.rosters.map(roster => ({ society: roster.society, minds: [...roster.people!], tick }))
+}
+
+const stock = (world: WorldFixture) => computeStock(world.holders, world.records, world.readers, world)
 
 const states = (world: WorldFixture, technique: TechniqueRecord) => capabilityStates(
   [technique],
@@ -46,7 +57,7 @@ const states = (world: WorldFixture, technique: TechniqueRecord) => capabilitySt
   stock(world),
   world.feasibility,
   world.reach,
-  world.production,
+  world.production, world,
 )
 
 const stateIn = (world: WorldFixture, technique: TechniqueRecord, society: string) =>
@@ -56,7 +67,7 @@ const techniqueHolders = (world: WorldFixture) =>
   world.holders.filter(holder => holder.society === 'A' && holder.item === TECHNIQUE_ID && holder.level === 'holds')
 
 describe('KD-1a no contact', () => {
-  it('DESIGN §3 KD-1a: B stock is empty, known/invented/adopted are false, and deployed is null', () => {
+  it('DESIGN §3 KD-1a: B stock is empty, availability/invented/adopted are false, and deployed is null', () => {
     const world = loadWorld()
     const technique = loadTechnique()
     expect(stock(world).filter(entry => entry.society === 'B')).toEqual([])
@@ -65,7 +76,7 @@ describe('KD-1a no contact', () => {
       technique: TECHNIQUE_ID,
       possible: true,
       unknowns: [],
-      known: false,
+      availability: false,
       invented: false,
       adopted: false,
       deployed: null,
@@ -74,7 +85,7 @@ describe('KD-1a no contact', () => {
 })
 
 describe("A's baseline", () => {
-  it('DESIGN §3 KD-1 fixture: A has possible, known, invented, adopted, deployed 0.4', () => {
+  it('DESIGN §3 KD-1 fixture: A has possible, availability, invented, adopted, deployed 0.4', () => {
     const world = loadWorld()
     const technique = loadTechnique()
     expect(stateIn(world, technique, 'A')).toEqual({
@@ -82,7 +93,7 @@ describe("A's baseline", () => {
       technique: TECHNIQUE_ID,
       possible: true,
       unknowns: [],
-      known: true,
+      availability: true,
       invented: true,
       adopted: true,
       deployed: 0.4,
@@ -91,7 +102,7 @@ describe("A's baseline", () => {
 })
 
 describe('KD-1e not possible in B', () => {
-  it('DESIGN §3 KD-1e: reach false keeps B known and invented but not possible or adopted', () => {
+  it('DESIGN §3 KD-1e: reach false keeps B availability and invented but not possible or adopted', () => {
     const technique = loadTechnique()
     const world = clone(loadWorld())
     world.holders.push(
@@ -110,7 +121,7 @@ describe('KD-1e not possible in B', () => {
     })
     expect(stateIn(world, technique, 'B')).toMatchObject({
       possible: false,
-      known: true,
+      availability: true,
       invented: true,
       adopted: false,
       deployed: null,
@@ -144,7 +155,7 @@ describe('KD-1f no incentive', () => {
       technique: TECHNIQUE_ID,
       possible: true,
       unknowns: [],
-      known: true,
+      availability: true,
       invented: true,
       adopted: false,
       deployed: null,
@@ -166,8 +177,9 @@ describe('KD-1h loss, static part', () => {
     step1.holders = step1.holders.filter(holder =>
       !(holder.society === 'A' && holder.item === TECHNIQUE_ID && holder.level === 'holds'),
     )
-    const inputs0 = { holders: step0.holders, records: step0.records, readers: step0.readers }
-    const inputs1 = { holders: step1.holders, records: step1.records, readers: step1.readers }
+    atStep(step1, 1, departures)
+    const inputs0 = { ...step0, holders: step0.holders, records: step0.records, readers: step0.readers }
+    const inputs1 = { ...step1, holders: step1.holders, records: step1.records, readers: step1.readers }
     expect(diffStock(inputs0, inputs1, departures)).toEqual([
       {
         society: 'A',
@@ -192,7 +204,8 @@ describe('KD-1h loss, static part', () => {
     step2.readers = step2.readers.map(reader =>
       reader.society === 'A' && reader.script === 'fixture-script' ? { ...reader, readers: 0 } : reader,
     )
-    const inputs2 = { holders: step2.holders, records: step2.records, readers: step2.readers }
+    atStep(step2, 2)
+    const inputs2 = { ...step2, holders: step2.holders, records: step2.records, readers: step2.readers }
     expect(diffStock(inputs1, inputs2, [])).toEqual([
       {
         society: 'A',
@@ -212,7 +225,8 @@ describe('KD-1h loss, static part', () => {
     step3.readers = step3.readers.map(reader =>
       reader.society === 'A' && reader.script === 'fixture-script' ? { ...reader, readers: 1 } : reader,
     )
-    const inputs3 = { holders: step3.holders, records: step3.records, readers: step3.readers }
+    atStep(step3, 3)
+    const inputs3 = { ...step3, holders: step3.holders, records: step3.records, readers: step3.readers }
     expect(diffStock(inputs2, inputs3, [])).toEqual([
       {
         society: 'A',
@@ -228,11 +242,11 @@ describe('Determinism (KD-1i, static part)', () => {
   it('DESIGN §3 KD-1i: repeated calls on the same inputs are deep-equal', () => {
     const world = loadWorld()
     const technique = loadTechnique()
-    const inputs = { holders: world.holders, records: world.records, readers: world.readers }
+    const inputs = { ...world, holders: world.holders, records: world.records, readers: world.readers }
     const departures: DepartureReport[] = [{ mind: 'A-001', society: 'A', cause: 'death' }]
     const cap = states(world, technique)
-    expect(computeStock(world.holders, world.records, world.readers))
-      .toEqual(computeStock(world.holders, world.records, world.readers))
+    expect(computeStock(world.holders, world.records, world.readers, world))
+      .toEqual(computeStock(world.holders, world.records, world.readers, world))
     expect(diffStock(inputs, inputs, departures)).toEqual(diffStock(inputs, inputs, departures))
     expect(capabilityStates(
       [technique],
@@ -240,7 +254,7 @@ describe('Determinism (KD-1i, static part)', () => {
       stock(world),
       world.feasibility,
       world.reach,
-      world.production,
+      world.production, world,
     )).toEqual(cap)
     expect(diffCapability(cap, cap)).toEqual(diffCapability(cap, cap))
   })

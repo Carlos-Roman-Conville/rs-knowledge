@@ -3,7 +3,7 @@ import { adopters, bassStep } from './adoption.ts'
 import { capabilityState, type CapabilityState } from './capability.ts'
 import { migrationHazard, recordHazard, tradeHazard, type DiffusionParams } from './diffusion.ts'
 import { inventionHazard } from './invention.ts'
-import type { ContactReport, DepartureReport, HolderReport, ReaderReport, RecordReport } from './ports.ts'
+import type { AccessReport, ContactReport, DepartureReport, HolderReport, ReaderReport, RecordReport } from './ports.ts'
 import type { Param, TechniqueRecord } from './schema.ts'
 import { computeStock, diffStock, type StockEvent, type StockInputs } from './stock.ts'
 
@@ -130,14 +130,22 @@ export function runKd1(config: Kd1Config, seed: number): Kd1Result {
   const snapshot = (): StockInputs => {
     const rosters = [{ society: a, people: [...peopleA], tick },
       { society: b, people: [...peopleB], tick }]
-    return { holders: [...source, ...target.values()], records, readers, tick, rosters,
+    // KNT-14 fixture stub: assume script readers can reach every matching record.
+    // This aggregate demonstration has no live placement/custody/access contract.
+    const accessStub: AccessReport[] = records.map(record => ({
+      record: record.record,
+      reader: rosters.find(r => r.society === record.society)?.people.at(-1) ?? 'fixture/no-reader',
+      access: readers.some(r => r.society === record.society && r.script === record.script && r.readers > 0),
+      interpret: true, source: 'fixture',
+    }))
+    return { holders: [...source, ...target.values()], records, access: accessStub, tick, rosters,
       reportedMinds: rosters.map(({ society, people }) => ({ society, minds: [...people], tick })),
       pairs: [a, b].flatMap(society => [k, ...c.technique.propositions].map(item => ({ society, item }))) }
   }
   const state = (): CapabilityState => {
     const inputs = snapshot()
     return capabilityState(c.technique, b,
-      computeStock(inputs.holders, records, readers, inputs), feasibility, reach,
+      computeStock(inputs.holders, records, inputs.access, inputs), feasibility, reach,
       [{ society: b, technique: k, successes, producersUsing: adopted, share: null }])
   }
   const learn = (item: string, learnedSkill: number | null) => {

@@ -1,5 +1,5 @@
-import type { Unknown } from './unknown.ts'
-import type { DepartureReport, HolderReport, ReaderReport, RecordReport, ReportedMindsReport, RosterReport } from './ports.ts'
+import { and, or, type Unknown } from './unknown.ts'
+import type { DepartureReport, HolderReport, AccessReport, RecordReport, ReportedMindsReport, RosterReport } from './ports.ts'
 
 export type StockEntry = {
   society: string
@@ -9,6 +9,7 @@ export type StockEntry = {
   bestSkill: number | null
   readableRecords: number
   unreadableRecords: number
+  unknownRecords: number
   coverage: number | null
   tick: number
   partial: boolean
@@ -29,7 +30,7 @@ export type StockSnapshot = {
 export type StockInputs = StockSnapshot & {
   holders: readonly HolderReport[]
   records: readonly RecordReport[]
-  readers: readonly ReaderReport[]
+  access: readonly AccessReport[]
 }
 
 export type StockEvent = {
@@ -42,9 +43,28 @@ export type StockEvent = {
 const key = (...ids: string[]) => JSON.stringify(ids)
 const compare = (a: string, b: string) => a < b ? -1 : a > b ? 1 : 0
 const byItem = (a: StockEntry, b: StockEntry) => compare(a.society, b.society) || compare(a.item, b.item)
-const readableScripts = (readers: readonly ReaderReport[]) => new Set(
-  readers.filter(report => report.readers > 0).map(report => key(report.society, report.script)),
-)
+/** PLAN §3.2 / KN-3: only eligible readers with both owner assessments qualify. */
+function recordAccess(record: RecordReport, access: readonly AccessReport[], snapshot: StockSnapshot) {
+  const members = snapshot.rosters?.find(r => r.society === record.society && r.tick === snapshot.tick)?.people
+  const reports = access.filter(r => r.record === record.record)
+  const unknowns: Unknown[] = []
+  const values = reports.map(report => {
+    const eligible = members == null ? null : members.includes(report.reader)
+    const value = and([eligible, report.access, report.interpret])
+    if (value === null) {
+      if (eligible === null) unknowns.push({ state: 'availability', input: `eligible reader ${report.reader}`, producer: 'society' })
+      if (report.access === null) unknowns.push({ state: 'availability', input: `access to ${record.record} for ${report.reader}`, producer: 'reality/economy' })
+      if (report.interpret === null) unknowns.push({ state: 'availability', input: `interpret ${record.record} for ${report.reader}`, producer: 'cognition' })
+    }
+    return value
+  })
+  if (reports.length === 0) {
+    unknowns.push({ state: 'availability', input: `access to ${record.record}`, producer: 'reality/economy' },
+      { state: 'availability', input: `interpret ${record.record}`, producer: 'cognition' })
+  }
+  const value = reports.length === 0 ? null : or(values)
+  return { value, unknowns: value === null ? unknowns : [] }
+}
 
 function unitInterval(value: number, name: string): void {
   if (!Number.isFinite(value) || value < 0 || value > 1) throw new Error(`${name} must be in [0, 1]`)
@@ -66,13 +86,18 @@ export function stockCoverage(society: string, snapshot: StockSnapshot): Pick<St
   return { coverage, tick, partial: coverage === null || coverage < 1, notApplicable: false, unknowns }
 }
 
-/** DESIGN §1.2: all state is local to this computation, never retained between calls. */
+/**
+ * PLAN §3.2 / KN-3: R(s,k) counts distinct intact records with an eligible reader
+ * whose owner-reported access AND interpretation is true (Kleene logic).
+ * Counts are per snapshot; records never create holders, heard-of minds or skill.
+ * Implemented with labelled fixture access; live connection validation is pending.
+ * All state is local to this computation, never retained between calls.
+ */
 export function computeStock(
-  holders: readonly HolderReport[], records: readonly RecordReport[], readers: readonly ReaderReport[], snapshot: StockSnapshot,
+  holders: readonly HolderReport[], records: readonly RecordReport[], access: readonly AccessReport[], snapshot: StockSnapshot,
 ): StockEntry[] {
   const groups = new Map<string, { entry: StockEntry; held: Set<string>; heard: Set<string> }>()
   const societies = new Map<string, string>()
-  const scripts = readableScripts(readers)
   const coverage = new Map<string, ReturnType<typeof stockCoverage>>()
   const memberships = new Map((snapshot.rosters ?? []).filter(report => report.tick === snapshot.tick)
     .map(report => [report.society, report.people === null ? null : new Set(report.people)]))
@@ -83,7 +108,7 @@ export function computeStock(
       if (!coverage.has(society)) coverage.set(society, stockCoverage(society, snapshot))
       const status = coverage.get(society)!
       result = {
-        entry: { society, item, holders: 0, heardOf: 0, bestSkill: null, readableRecords: 0, unreadableRecords: 0, ...status, unknowns: [...status.unknowns], availability: null },
+        entry: { society, item, holders: 0, heardOf: 0, bestSkill: null, readableRecords: 0, unreadableRecords: 0, unknownRecords: 0, ...status, unknowns: [...status.unknowns], availability: null },
         held: new Set(), heard: new Set(),
       }
       groups.set(id, result)
@@ -105,27 +130,43 @@ export function computeStock(
       if (report.skill !== null) entry.bestSkill = Math.max(entry.bestSkill ?? report.skill, report.skill)
     } else heard.add(report.mind)
   }
+  const seenRecords = new Map<string, RecordReport>()
   for (const report of records) {
     unitInterval(report.fidelity, 'fidelity')
+    const previous = seenRecords.get(report.record)
+    if (previous) {
+      if (previous.society !== report.society || previous.item !== report.item || previous.intact !== report.intact) {
+        throw new Error(`conflicting record ${report.record} (conservation)`)
+      }
+      continue
+    }
+    seenRecords.set(report.record, report)
     const { entry } = group(report.society, report.item)
     if (!report.intact) continue
-    if (scripts.has(key(report.society, report.script))) entry.readableRecords++
-    else entry.unreadableRecords++
+    const assessment = recordAccess(report, access, snapshot)
+    if (assessment.value === true) entry.readableRecords++
+    else if (assessment.value === false) entry.unreadableRecords++
+    else {
+      entry.unknownRecords++
+      entry.unknowns.push(...assessment.unknowns)
+    }
   }
   return [...groups.values()].map(({ entry, held, heard }) => ({
     ...entry,
+    unknowns: [...new Map(entry.unknowns.map(unknown => [key(unknown.state, unknown.producer, unknown.input), unknown])).values()]
+      .sort((a, b) => a.state === 'coverage' && b.state === 'coverage' ? 0
+        : a.state === 'coverage' ? -1 : b.state === 'coverage' ? 1
+          : compare(a.input, b.input) || compare(a.producer, b.producer)),
     holders: held.size,
     heardOf: [...heard].filter(mind => !held.has(mind)).length,
-    availability: held.size > 0 || entry.readableRecords > 0 ? true : entry.coverage === 1 ? false : null,
+    availability: held.size > 0 || entry.readableRecords > 0 ? true : entry.coverage === 1 && entry.unknownRecords === 0 ? false : null,
   })).sort(byItem)
 }
 
 /** Loss causes come from port reports; absent pairs are treated as an unknown, empty stock. */
 export function diffStock(prev: StockInputs, next: StockInputs, departures: readonly DepartureReport[]): StockEvent[] {
-  const before = new Map(computeStock(prev.holders, prev.records, prev.readers, prev).map(entry => [key(entry.society, entry.item), entry]))
-  const after = new Map(computeStock(next.holders, next.records, next.readers, next).map(entry => [key(entry.society, entry.item), entry]))
-  const prevScripts = readableScripts(prev.readers)
-  const nextScripts = readableScripts(next.readers)
+  const before = new Map(computeStock(prev.holders, prev.records, prev.access, prev).map(entry => [key(entry.society, entry.item), entry]))
+  const after = new Map(computeStock(next.holders, next.records, next.access, next).map(entry => [key(entry.society, entry.item), entry]))
   const nextRecords = new Map(next.records.map(report => [key(report.society, report.item, report.record), report]))
   const events: StockEvent[] = []
   for (const id of new Set([...before.keys(), ...after.keys()])) {
@@ -149,7 +190,7 @@ export function diffStock(prev: StockInputs, next: StockInputs, departures: read
       if (record.society !== society || record.item !== item || !record.intact) continue
       const survivor = nextRecords.get(key(society, item, record.record))
       if (!survivor?.intact) causes.add('record_decay')
-      else if (prevScripts.has(key(society, record.script)) && !nextScripts.has(key(society, survivor.script))) causes.add('no_reader')
+      else if (recordAccess(record, prev.access, prev).value === true && recordAccess(survivor, next.access, next).value === false) causes.add('no_access')
     }
     for (const kind of kinds) events.push({ society, item, kind, causes: [...causes].sort() })
   }

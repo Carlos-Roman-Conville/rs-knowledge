@@ -1,3 +1,4 @@
+import { kd1AccessStub } from './kd1-access-stub.ts'
 import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 import { capabilityState, computeStock, runCase, runKd1 } from '../src/index.ts'
@@ -317,7 +318,7 @@ describe('KD-1h loss before contact', () => {
     const dead = new Set(world.holders.filter(h => h.society === 'A' && h.item === k && h.level === 'holds').map(h => h.mind))
     const rosters = world.rosters.map(r => ({ ...r, tick: 1, people: r.people!.filter(mind => !dead.has(mind)) }))
     const reportedMinds = rosters.map(r => ({ society: r.society, minds: [...r.people], tick: 1 }))
-    const stock = computeStock(holdersAfterDeath, world.records, world.readers, { tick: 1, rosters, reportedMinds })
+    const stock = computeStock(holdersAfterDeath, world.records, kd1AccessStub({ ...world, tick: 1, rosters }), { tick: 1, rosters, reportedMinds })
     expect(
       capabilityState(technique, 'A', stock, feasibility, reach, production),
     ).toMatchObject({ availability: true, invented: false })

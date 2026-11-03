@@ -4,7 +4,7 @@ export type { MethodLink, Param, PropositionRecord, TechniqueRecord, KnowledgeRe
 export { validateRecord } from './schema.ts'
 export type { RecordFile } from './check.ts'
 export { checkRecords } from './check.ts'
-export type { ReportedMindsReport, RosterReport, HolderReport, RecordReport, ReaderReport, DepartureReport } from './ports.ts'
+export type { ReportedMindsReport, RosterReport, AccessReport, HolderReport, RecordReport, ReaderReport, DepartureReport } from './ports.ts'
 export type { StockSnapshot, StockEntry, StockInputs, StockEvent } from './stock.ts'
 export { computeStock, diffStock } from './stock.ts'
 export type { FeasibilityReport, ReachReport, ProductionReport } from './ports.ts'

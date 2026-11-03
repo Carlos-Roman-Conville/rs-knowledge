@@ -1,3 +1,4 @@
+import { kd1AccessStub } from './kd1-access-stub.ts'
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -49,7 +50,7 @@ const atStep = (world: WorldFixture, tick: number, departures: DepartureReport[]
   world.reportedMinds = world.rosters.map(roster => ({ society: roster.society, minds: [...roster.people!], tick }))
 }
 
-const stock = (world: WorldFixture) => computeStock(world.holders, world.records, world.readers, world)
+const stock = (world: WorldFixture) => computeStock(world.holders, world.records, kd1AccessStub(world), world)
 
 const states = (world: WorldFixture, technique: TechniqueRecord) => capabilityStates(
   [technique],
@@ -178,8 +179,8 @@ describe('KD-1h loss, static part', () => {
       !(holder.society === 'A' && holder.item === TECHNIQUE_ID && holder.level === 'holds'),
     )
     atStep(step1, 1, departures)
-    const inputs0 = { ...step0, holders: step0.holders, records: step0.records, readers: step0.readers }
-    const inputs1 = { ...step1, holders: step1.holders, records: step1.records, readers: step1.readers }
+    const inputs0 = { ...step0, holders: step0.holders, records: step0.records, access: kd1AccessStub(step0) }
+    const inputs1 = { ...step1, holders: step1.holders, records: step1.records, access: kd1AccessStub(step1) }
     expect(diffStock(inputs0, inputs1, departures)).toEqual([
       {
         society: 'A',
@@ -205,19 +206,19 @@ describe('KD-1h loss, static part', () => {
       reader.society === 'A' && reader.script === 'fixture-script' ? { ...reader, readers: 0 } : reader,
     )
     atStep(step2, 2)
-    const inputs2 = { ...step2, holders: step2.holders, records: step2.records, readers: step2.readers }
+    const inputs2 = { ...step2, holders: step2.holders, records: step2.records, access: kd1AccessStub(step2) }
     expect(diffStock(inputs1, inputs2, [])).toEqual([
       {
         society: 'A',
         item: TECHNIQUE_ID,
         kind: 'lost',
-        causes: ['no_reader'],
+        causes: ['no_access'],
       },
       {
         society: 'A',
         item: TECHNIQUE_ID,
         kind: 'unreadable',
-        causes: ['no_reader'],
+        causes: ['no_access'],
       },
     ])
 
@@ -226,7 +227,7 @@ describe('KD-1h loss, static part', () => {
       reader.society === 'A' && reader.script === 'fixture-script' ? { ...reader, readers: 1 } : reader,
     )
     atStep(step3, 3)
-    const inputs3 = { ...step3, holders: step3.holders, records: step3.records, readers: step3.readers }
+    const inputs3 = { ...step3, holders: step3.holders, records: step3.records, access: kd1AccessStub(step3) }
     expect(diffStock(inputs2, inputs3, [])).toEqual([
       {
         society: 'A',
@@ -242,11 +243,11 @@ describe('Determinism (KD-1i, static part)', () => {
   it('DESIGN §3 KD-1i: repeated calls on the same inputs are deep-equal', () => {
     const world = loadWorld()
     const technique = loadTechnique()
-    const inputs = { ...world, holders: world.holders, records: world.records, readers: world.readers }
+    const inputs = { ...world, holders: world.holders, records: world.records, access: kd1AccessStub(world) }
     const departures: DepartureReport[] = [{ mind: 'A-001', society: 'A', cause: 'death' }]
     const cap = states(world, technique)
-    expect(computeStock(world.holders, world.records, world.readers, world))
-      .toEqual(computeStock(world.holders, world.records, world.readers, world))
+    expect(computeStock(world.holders, world.records, kd1AccessStub(world), world))
+      .toEqual(computeStock(world.holders, world.records, kd1AccessStub(world), world))
     expect(diffStock(inputs, inputs, departures)).toEqual(diffStock(inputs, inputs, departures))
     expect(capabilityStates(
       [technique],

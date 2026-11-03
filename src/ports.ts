@@ -17,6 +17,17 @@ export type RecordReport = {
   script: string
 }
 
+/** Per-snapshot owner assessments; fixture access is the KNT-14 assumption (PLAN §3.2). */
+export type AccessReport = {
+  reader: string
+  record: string
+  /** Reality placement/physical access and Economy custody. */
+  access: boolean | null
+  /** Cognition interpretation; never inferred from a script by the stock. */
+  interpret: boolean | null
+  source: 'owner' | 'fixture'
+}
+
 /** Living members able to read the script. */
 export type ReaderReport = { society: string; script: string; readers: number }
 

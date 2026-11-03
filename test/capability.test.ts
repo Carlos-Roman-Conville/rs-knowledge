@@ -18,7 +18,7 @@ const productionStub = (patch: Partial<ProductionReport> = {}): ProductionReport
 })
 const stockStub = (patch: Partial<StockEntry> = {}): StockEntry => ({
   society, item: method.id, holders: 1, heardOf: 0, bestSkill: 0.5,
-  readableRecords: 0, unreadableRecords: 0, availability: true,
+  readableRecords: 0, unreadableRecords: 0, unknownRecords: 0, availability: true,
   coverage: 1, tick: 0, partial: false, notApplicable: false, unknowns: [], ...patch,
 })
 const evaluate = (

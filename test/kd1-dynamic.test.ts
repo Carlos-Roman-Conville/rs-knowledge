@@ -300,12 +300,12 @@ describe('KD-1h loss before contact', () => {
     const holdersAfterDeath = world.holders.filter(
       h => !(h.society === 'A' && h.item === k && h.level === 'holds'),
     )
-    const feasibility = technique.enables.map(recipe => ({
+    const feasibility = technique.methods.flat().map(({ recipe }) => ({
       society: 'A',
       recipe,
       feasible: true,
     }))
-    const reach = technique.enables.map(recipe => ({
+    const reach = technique.methods.flat().map(({ recipe }) => ({
       society: 'A',
       recipe,
       reachable: true,

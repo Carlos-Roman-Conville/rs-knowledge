@@ -8,7 +8,7 @@ const writing: TechniqueRecord = { ...technique(), id: 'knowledge/technique.mark
 const signal: TechniqueRecord = { ...technique(), id: 'knowledge/technique.beacons', isMedium: true, medium: { kind: 'signal' } }
 const literacyStub: LiteracyReport[] = [{ society: 'A', share: 0.25 }, { society: 'B', share: 0.75 }]
 const stateStub = (record = writing, society = 'A', deployed: number | null = 0.5): CapabilityState => ({
-  society, technique: record.id, possible: false, known: false, invented: false, adopted: false, deployed,
+  society, technique: record.id, possible: false, unknowns: [], known: false, invented: false, adopted: false, deployed,
 })
 
 it('DESIGN §1.8: a flagged deployed technique without a descriptor remains available with unknown kind and share', () => {

@@ -118,8 +118,8 @@ export function runKd1(config: Kd1Config, seed: number): Kd1Result {
   const target = new Map<string, HolderReport>()
   const records = c.records.map(report => ({ ...report }))
   const readers = c.readers.map(report => ({ ...report }))
-  const feasibility = c.technique.enables.map(recipe => ({ society: b, recipe, feasible: c.possibleB }))
-  const reach = c.technique.enables.map(recipe => ({ society: b, recipe, reachable: c.possibleB }))
+  const feasibility = c.technique.methods.flat().map(({ recipe }) => ({ society: b, recipe, feasible: c.possibleB }))
+  const reach = c.technique.methods.flat().map(({ recipe }) => ({ society: b, recipe, reachable: c.possibleB }))
   let populationA = c.populationA
   let successes = 0, adopted = 0
   const snapshot = (): StockInputs => ({ holders: [...source, ...target.values()], records, readers })

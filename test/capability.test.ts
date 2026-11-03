@@ -7,10 +7,10 @@ import { fiction, technique } from './records.ts'
 const method = technique()
 const society = 'society.a'
 const feasibilityStub = (patch: Partial<FeasibilityReport> = {}): FeasibilityReport => ({
-  society, recipe: method.enables[0], feasible: true, ...patch,
+  society, recipe: method.methods[0][0].recipe, feasible: true, ...patch,
 })
 const reachStub = (patch: Partial<ReachReport> = {}): ReachReport => ({
-  society, recipe: method.enables[0], reachable: true, ...patch,
+  society, recipe: method.methods[0][0].recipe, reachable: true, ...patch,
 })
 const productionStub = (patch: Partial<ProductionReport> = {}): ProductionReport => ({
   society, technique: method.id, producersUsing: 1, successes: 1, share: 0.5, ...patch,
@@ -24,9 +24,9 @@ const evaluate = (
   reach: readonly ReachReport[] = [], production: readonly ProductionReport[] = [],
 ) => capabilityState(method, society, stock, feasibility, reach, production)
 
-it('DESIGN §1.1 possible requires feasibility and reach for every enabled recipe', () => {
+it('DESIGN §1.1 possible requires feasibility and reach for every mandatory recipe in a method', () => {
   const second = 'economy/recipe.second'
-  const multi = { ...method, enables: [...method.enables, second] }
+  const multi = { ...method, methods: [[...method.methods[0], { recipe: second, version: 'fixture' }]] }
   expect(evaluate([], [feasibilityStub()], [reachStub()]).possible).toBe(true)
   expect(capabilityState(multi, society, [], [feasibilityStub()], [reachStub()], []).possible).toBeNull()
   expect(capabilityState(multi, society, [], [feasibilityStub(), feasibilityStub({ recipe: second })],
@@ -37,7 +37,7 @@ it('DESIGN §1.1 any false feasibility or reach overrides missing and null repor
   expect(evaluate([], [feasibilityStub({ feasible: false })]).possible).toBe(false)
   expect(evaluate([], [], [reachStub({ reachable: false })]).possible).toBe(false)
   expect(evaluate([], [feasibilityStub({ feasible: null })], [reachStub({ reachable: false })]).possible).toBe(false)
-  const multi = { ...method, enables: ['economy/recipe.missing', ...method.enables] }
+  const multi = { ...method, methods: [[{ recipe: 'economy/recipe.missing', version: 'fixture' }, ...method.methods[0]]] }
   expect(capabilityState(multi, society, [], [feasibilityStub({ feasible: false })], [], []).possible).toBe(false)
 })
 
@@ -47,7 +47,7 @@ it('DESIGN §1.1 missing or null reports and absent recipe links never default p
   expect(evaluate([], [], [reachStub()]).possible).toBeNull()
   expect(evaluate([], [feasibilityStub({ feasible: null })], [reachStub()]).possible).toBeNull()
   expect(evaluate([], [feasibilityStub()], [reachStub({ reachable: null })]).possible).toBeNull()
-  expect(capabilityState({ ...method, enables: [] }, society, [], [], [], []).possible).toBeNull()
+  expect(capabilityState({ ...method, methods: [] }, society, [], [], [], []).possible).toBeNull()
 })
 
 it('DESIGN §1.1 known accepts the technique own known stock, including readable records alone', () => {
@@ -106,7 +106,10 @@ it('DESIGN §1.1 scopes every port and stock lookup to its society and item', ()
     [feasibilityStub({ society: elsewhere }), feasibilityStub({ recipe: 'other' })],
     [reachStub({ society: elsewhere }), reachStub({ recipe: 'other' })],
     [productionStub({ society: elsewhere }), productionStub({ technique: 'other' })],
-  )).toEqual({ society, technique: method.id, possible: null, known: false, invented: false, adopted: false, deployed: null })
+  )).toEqual({ society, technique: method.id, possible: null, unknowns: [
+    { state: 'possible', input: `feasibility of ${method.methods[0][0].recipe}`, producer: 'reality' },
+    { state: 'possible', input: `reach of ${method.methods[0][0].recipe}`, producer: 'economy/reality' },
+  ], known: false, invented: false, adopted: false, deployed: null })
   expect(evaluate([], [feasibilityStub(), feasibilityStub({ feasible: false, recipe: 'other' })],
     [reachStub(), reachStub({ reachable: false, society: elsewhere })]).possible).toBe(true)
 })
@@ -179,4 +182,66 @@ it('DESIGN rule 8 throws naming minSkill when the required parameter is null, ev
   const unresolved = { ...method, minSkill: { value: null, label: 'open' as const, sources: [] } }
   expect(() => capabilityState(unresolved, society, [], [], [], [])).toThrow(/minSkill/)
   expect(() => capabilityStates([unresolved], [society], [], [], [], [])).toThrow(/minSkill/)
+})
+
+const secondRecipe = 'economy/recipe.second'
+const alternatives = { ...method, methods: [...method.methods, [{ recipe: secondRecipe, version: 'fixture' }]] }
+
+it('PLAN KN-1: one working alternative beside an infeasible alternative is possible', () => {
+  const state = capabilityState(alternatives, society, [],
+    [feasibilityStub(), feasibilityStub({ recipe: secondRecipe, feasible: false })], [reachStub()], [])
+  expect(state.possible).toBe(true)
+  expect(state.unknowns).toEqual([])
+})
+
+it('PLAN KN-1: every alternative infeasible is false without unknowns', () => {
+  const state = capabilityState(alternatives, society, [],
+    [feasibilityStub({ feasible: false }), feasibilityStub({ recipe: secondRecipe, feasible: false })], [], [])
+  expect(state.possible).toBe(false)
+  expect(state.unknowns).toEqual([])
+})
+
+it('PLAN KN-1: an unknown alternative with none true names its missing input and producer', () => {
+  const state = capabilityState(alternatives, society, [],
+    [feasibilityStub({ feasible: false })], [reachStub({ recipe: secondRecipe })], [])
+  expect(state.possible).toBeNull()
+  expect(state.unknowns).toEqual([
+    { state: 'possible', input: `feasibility of ${secondRecipe}`, producer: 'reality' },
+  ])
+})
+
+it('PLAN KN-1: two mandatory recipes with one infeasible make the method false', () => {
+  const state = capabilityState({ ...method, methods: [alternatives.methods.flat()] }, society, [],
+    [feasibilityStub(), feasibilityStub({ recipe: secondRecipe, feasible: false })], [reachStub()], [])
+  expect(state.possible).toBe(false)
+  expect(state.unknowns).toEqual([])
+})
+
+it('PLAN KN-1: an unversioned link stays unknown even with working reports', () => {
+  const recipe = method.methods[0][0].recipe
+  const state = capabilityState({ ...method, methods: [[{ recipe, version: null }]] }, society, [],
+    [feasibilityStub()], [reachStub()], [])
+  expect(state.possible).toBeNull()
+  expect(state.unknowns).toEqual([
+    { state: 'possible', input: `version of ${recipe}`, producer: 'knowledge data (KNT-12)' },
+  ])
+})
+
+it('PLAN KN-1: no feasibility reports stays unknown, never true', () => {
+  const state = evaluate([], [], [reachStub()])
+  expect(state.possible).toBeNull()
+  expect(state.unknowns).toEqual([
+    { state: 'possible', input: `feasibility of ${method.methods[0][0].recipe}`, producer: 'reality' },
+  ])
+})
+
+it('PLAN KN-1: unknowns sort independently of method order and are ignored by diffCapability', () => {
+  const first = capabilityState(alternatives, society, [], [], [], [])
+  const reversed = capabilityState({ ...alternatives, methods: [...alternatives.methods].reverse() }, society, [], [], [], [])
+  expect(first).toEqual(reversed)
+  expect(first.unknowns.map(item => item.input)).toEqual(first.unknowns.map(item => item.input).sort())
+  expect(diffCapability([first], [{ ...first, unknowns: [] }])).toEqual([])
+  expect(evaluate([], [feasibilityStub()], []).unknowns).toEqual([
+    { state: 'possible', input: `reach of ${method.methods[0][0].recipe}`, producer: 'economy/reality' },
+  ])
 })

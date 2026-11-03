@@ -6,7 +6,7 @@ import { fiction } from './records.ts'
 // Declared Economy/reach input stub; all numbers and states are fiction, not calibration.
 const inputsStub: AdopterInputs = {
   state: {
-    society: 'fiction-society', technique: 'fiction-technique', possible: true,
+    society: 'fiction-society', technique: 'fiction-technique', possible: true, unknowns: [],
     known: false, invented: true, adopted: false, deployed: null,
   },
   producers: 10, costAdvantage: 2, inReach: true,

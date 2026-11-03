@@ -13,11 +13,14 @@ export type PropositionRecord = {
   notes?: string
 }
 
+export type MethodLink = { recipe: string; version: string | null }
+
 export type TechniqueRecord = {
   id: string
   kind: 'technique'
   name: string
-  enables: string[]
+  /** Alternative methods (OR), each requiring every linked recipe (AND). */
+  methods: MethodLink[][]
   propositions: string[]
   minSkill: Param
   tacitShare: Param
@@ -56,9 +59,21 @@ export function validateRecord(record: unknown): string[] {
     if ('catalogueRef' in record) errors.push('proposition must not carry catalogueRef (KNT-K1)')
   } else if (record.kind === 'technique') {
     string('name')
-    array('enables')
+    if ('enables' in record) errors.push('enables is obsolete; use methods')
+    if (!Array.isArray(record.methods) || record.methods.length === 0) errors.push('methods must be non-empty')
+    else record.methods.forEach((alternative, i) => {
+      if (!Array.isArray(alternative) || alternative.length === 0) {
+        errors.push(`methods[${i}] must be a non-empty array`)
+        return
+      }
+      alternative.forEach((link, j) => {
+        if (!isObject(link) || typeof link.recipe !== 'string' || link.recipe.trim().length === 0 ||
+          (link.version !== null && typeof link.version !== 'string')) {
+          errors.push(`methods[${i}][${j}] must have a non-empty recipe and a string or null version`)
+        }
+      })
+    })
     array('propositions')
-    if (Array.isArray(record.enables) && record.enables.length === 0) errors.push('enables must be non-empty')
     if (typeof record.isMedium !== 'boolean') errors.push('isMedium must be a boolean')
     if (record.isMedium === false && record.medium !== undefined) {
       errors.push('medium descriptor requires isMedium to be true')

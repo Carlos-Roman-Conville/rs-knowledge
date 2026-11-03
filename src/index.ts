@@ -1,6 +1,6 @@
 // @rex/knowledge: the public surface grows unit by unit (DESIGN §2).
 import { qualify } from '@rex/kernel'
-export type { Param, PropositionRecord, TechniqueRecord, KnowledgeRecord } from './schema.ts'
+export type { MethodLink, Param, PropositionRecord, TechniqueRecord, KnowledgeRecord } from './schema.ts'
 export { validateRecord } from './schema.ts'
 export type { RecordFile } from './check.ts'
 export { checkRecords } from './check.ts'
@@ -29,3 +29,6 @@ export const ENGINE = 'knowledge'
 export function knowledgeId(local: string): string {
   return qualify(ENGINE, local)
 }
+
+export type { Unknown } from './unknown.ts'
+export { and, or } from './unknown.ts'

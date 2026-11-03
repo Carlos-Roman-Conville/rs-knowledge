@@ -2,7 +2,7 @@
   "id": "knowledge/technique.fixture-lime-burning",
   "kind": "technique",
   "name": "Fixture lime burning",
-  "enables": ["fixture/recipe.quicklime"],
+  "methods": [[{ "recipe": "fixture/recipe.quicklime", "version": "fixture" }]],
   "propositions": [
     "knowledge/proposition.fixture-limestone-burns",
     "knowledge/proposition.fixture-mortar-sets"

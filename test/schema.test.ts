@@ -22,7 +22,7 @@ describe('record runtime schema', () => {
   it.each([null, [], 3, 'record'])('rejects non-object record %j', record => {
     expect(validateRecord(record)).toContain('record must be an object')
   })
-  it.each(['id', 'name', 'enables', 'propositions', 'sources', 'minSkill', 'tacitShare', 'copyingLoss', 'isMedium', 'catalogueRef'])('requires technique field %s', field => {
+  it.each(['id', 'name', 'methods', 'propositions', 'sources', 'minSkill', 'tacitShare', 'copyingLoss', 'isMedium', 'catalogueRef'])('requires technique field %s', field => {
     const record = { ...technique() } as Record<string, unknown>
     delete record[field]
     expect(validateRecord(record).length).toBeGreaterThan(0)
@@ -36,4 +36,20 @@ describe('record runtime schema', () => {
     const record = technique()
     expect(validateRecord({ ...record, minSkill: { ...record.minSkill, ...patch } }).length).toBeGreaterThan(0)
   })
+})
+
+it.each([null, {}, [], [[]], [null], [[null]], [[{}]], [[{ recipe: '', version: 'fixture' }]],
+  [[{ recipe: '  ', version: null }]], [[{ recipe: 3, version: null }]],
+  [[{ recipe: 'recipe' }]], [[{ recipe: 'recipe', version: 3 }]],
+])('PLAN KN-1: rejects malformed methods %j', methods => {
+  expect(validateRecord({ ...technique(), methods }).length).toBeGreaterThan(0)
+})
+it('PLAN KN-1: accepts alternatives and mandatory links with string or null versions', () => {
+  expect(validateRecord({ ...technique(), methods: [
+    [{ recipe: 'a', version: 'fixture' }, { recipe: 'b', version: null }],
+    [{ recipe: 'c', version: 'fixture' }],
+  ] })).toEqual([])
+})
+it('PLAN KN-1: rejects legacy enables even alongside valid methods', () => {
+  expect(validateRecord({ ...technique(), enables: ['recipe'] })).toContain('enables is obsolete; use methods')
 })

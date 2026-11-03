@@ -2,7 +2,7 @@
   "id": "knowledge/technique.lime-burning",
   "kind": "technique",
   "name": "Lime burning",
-  "enables": ["economy/recipe.quicklime"],
+  "methods": [[{ "recipe": "economy/recipe.quicklime", "version": null }]],
   "propositions": [
     "knowledge/proposition.limestone-burnt-yields-quicklime",
     "knowledge/proposition.slaked-lime-mortar-sets"
@@ -16,5 +16,5 @@
   "isMedium": false,
   "catalogueRef": null,
   "sources": [],
-  "notes": "economy/recipe.quicklime is an opaque recipe id; Economy has no such recipe yet. catalogueRef: no Catalogue record yet."
+  "notes": "economy/recipe.quicklime is an opaque recipe id; Economy has no such recipe yet. catalogueRef: no Catalogue record yet. methods unversioned until Economy publishes recipe ids (KNT-12)"
 }

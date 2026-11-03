@@ -5,7 +5,7 @@ import { fiction } from './records.ts'
 
 // All ids, states, hours and parameter values are fictional aggregate fixtures.
 const state: CapabilityState = {
-  society: 'fiction-society', technique: 'fiction-technique', possible: true,
+  society: 'fiction-society', technique: 'fiction-technique', possible: true, unknowns: [],
   known: false, invented: false, adopted: false, deployed: null,
 }
 const open: Param = { value: null, label: 'open', sources: [] }

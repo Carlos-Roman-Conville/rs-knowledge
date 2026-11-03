@@ -2,7 +2,7 @@
   "id": "knowledge/technique.writing",
   "kind": "technique",
   "name": "Writing",
-  "enables": ["economy/recipe.written-record"],
+  "methods": [[{ "recipe": "economy/recipe.written-record", "version": null }]],
   "propositions": ["knowledge/proposition.marks-can-stand-for-words"],
   "minSkill": { "value": null, "label": "open", "sources": [] },
   "tacitShare": { "value": null, "label": "open", "sources": [] },
@@ -13,5 +13,5 @@
   "isMedium": true,
   "catalogueRef": null,
   "sources": [],
-  "notes": "economy/recipe.written-record is an opaque recipe id; Economy has no such recipe yet."
+  "notes": "economy/recipe.written-record is an opaque recipe id; Economy has no such recipe yet. methods unversioned until Economy publishes recipe ids (KNT-12)"
 }

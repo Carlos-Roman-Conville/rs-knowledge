@@ -32,8 +32,8 @@ it('duplicate ids across data and fixtures fail', () => {
   expect(checkRecords(loaded.records, loaded.files).join()).toContain('duplicate id')
 })
 it('unresolved proposition reference fails', () => expect(check({ propositions: ['knowledge/proposition.missing'] }).join()).toContain('resolves to no proposition'))
-it.each(['notes', 'sources', 'enables', 'propositions', 'metadata'])('no tech tree checks %s including nested strings', key => {
-  const value = key === 'metadata' ? { nested: [{ id: 'knowledge/technique.other' }] } : ['knowledge/technique.other']
+it.each(['notes', 'sources', 'methods', 'propositions', 'metadata'])('no tech tree checks %s including nested strings', key => {
+  const value = key === 'methods' ? [[{ recipe: 'knowledge/technique.other', version: 'fixture' }]] : key === 'metadata' ? { nested: [{ id: 'knowledge/technique.other' }] } : ['knowledge/technique.other']
   expect(check({ [key]: value }).join()).toContain('no tech tree')
 })
 it('no tech tree forbids a nested repeat of its own id', () => expect(check({ metadata: { id: technique().id } }).join()).toContain('no tech tree'))
@@ -54,7 +54,7 @@ it.each(['minSkill', 'tacitShare'])('%s must be within [0, 1]', key => {
 it.each(['alpha', 'beta'])('copyingLoss %s must be > 0', key => {
   for (const value of [0, -1]) expect(check({ copyingLoss: { ...technique().copyingLoss, [key]: { value, label: 'fiction', sources: [] } } }).join()).toContain('must be > 0')
 })
-it('empty enables fails', () => expect(check({ enables: [] }).join()).toContain('enables must be non-empty'))
+it('empty methods fails', () => expect(check({ methods: [] }).join()).toContain('methods must be non-empty'))
 it('catalogueRef must match approved kinds and slug', () => {
   for (const catalogueRef of ['catalogue/person.fire', 'catalogue/technology.Bad', 'catalogue/practice.fire.x', 'fire']) expect(check({ catalogueRef }).join()).toContain('catalogueRef must be')
   for (const catalogueRef of ['catalogue/technology.fire', 'catalogue/practice.fire-making.2', null]) expect(check({ catalogueRef })).toEqual([])
@@ -63,7 +63,7 @@ it('KNT-K1 proposition carrying catalogueRef fails even when null', () => {
   expect(checkRecords([{ ...proposition(), catalogueRef: null }], ['heat.json']).join()).toContain('proposition must not carry catalogueRef')
 })
 it('failure lines are sorted deterministically', () => {
-  const failures = check({ enables: [], propositions: ['missing'], metadata: { year: 3 } }, 'wrong.json')
+  const failures = check({ methods: [], propositions: ['missing'], metadata: { year: 3 } }, 'wrong.json')
   expect(failures.length).toBeGreaterThan(2)
   expect(failures).toEqual([...failures].sort())
 })

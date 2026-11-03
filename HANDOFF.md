@@ -4,6 +4,7 @@ The keeper's handoff is `E:/AI Programs/HQ/handoffs/knowledge/HANDOFF.md`. This 
 adds one dated line under Done, and parks a disagreement with DESIGN.md under Blocked.
 
 ## Done
+- 2026-11-03 (5533, KN-1): Implemented versioned method alternatives with Kleene AND/OR and sorted producer-labelled unknowns; migrated production links (unversioned, KNT-12) and fixture links (fixture versions). KD-1 predicate expectations unchanged; only empty unknowns added to full-state assertions. Implemented, not integrated; connection validation waits on Economy/Reality recipe/process ids.
 - 2026-11-01 (2987): Preserved artefact/record diffusion without living holders; added contactStart (default 0), mortality from time zero.
 - 2026-11-01 (2942): isMedium authoritative for media availability; descriptors rejected on false flags; regression tests.
 - 2026-11-01 (2941): rewrote `test/kd1-dynamic.test.ts` (KD-1c main, KD-1g by q only, KD-1h at fixed holder share); parked halves skipped.

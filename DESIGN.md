@@ -438,8 +438,8 @@ Knowledge*; Comin & Hobijn 2010, *American Economic Review* 100; Derex et al. 20
 Mokyr 2002, *The Gifts of Athena*; Muthukrishna & Henrich 2016, *Philosophical Transactions of the Royal Society B*;
 Polanyi 1966,
 *The Tacit Dimension*; Read 2006, *American Antiquity* 71; Rogers 2003, *Diffusion of Innovations* (5th ed.); Ryan &
-Gross 1943, *Rural Sociology* 8; Sultan, Farley & Lehmann 1990, *Journal of Marketing Research* 27(1), 70–77; Van den
-Bulte & Stremersch 2004, *Marketing Science* 23(4), 530–544; Vaesen et al. 2016, *PNAS* 113; Weitzman 1998,
+Gross 1943, *Rural Sociology* 8; Sultan, Farley & Lehmann 1990, *Journal of Marketing Research* 27(1), 70–77;
+Van den Bulte & Stremersch 2004, *Marketing Science* 23(4), 530–544; Vaesen et al. 2016, *PNAS* 113; Weitzman 1998,
 *Quarterly Journal of Economics* 113.
 
 ## Log

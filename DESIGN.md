@@ -1,5 +1,7 @@
 # Knowledge & Technology: design (P9, Knowledge & Technology keeper, 2026-10-31)
 
+**Working design: `PLAN.md`** (approved, Rex 2026-11-02). Where PLAN.md and this file differ, PLAN.md wins; PLAN §8.3 lists the DESIGN sections it supersedes (§1.6 all-or-nothing `M_s`, §1.8 medium descriptor, §1.2 Read wording, §4 hold-out).
+
 **Status: approved (Rex, 2026-10-31)**: KNT-Q1–Q4 as proposed (§5). The lane `knowledge` is released by its approval
 marker unit. Every item is marked **(Rex)** = Rex's decision, **proposed** = this keeper's proposal, or **open** =
 a question for Rex or another owner (§5, prefix `KNT-Q`). Evidence levels are PLATFORM §4: (1) physical or mathematical
@@ -142,8 +144,9 @@ Gumbel maximum), and `N_eff` the number of skilled models a learner can see: the
 weighted holders elsewhere (Society's contact port). Below the critical size `N* = exp(α_k/β_k − γ)` the technique
 degrades and is eventually lost; above it, it can improve. This is the mechanism of the "Tasmanian effect" claim and
 of Kline & Boyd's toolkit result. **Competing explanations kept (PLATFORM §4):** Read (2006, *American Antiquity* 71)
-attributes Tasmanian toolkit changes to environment and risk rather than population size; Vaesen et al. (2016, *PNAS*
-113) find no population–toolkit relation in hunter-gatherer data. The validation plan (§4) runs both.
+argues Tasmanian tools were adequate technology and ties toolkit loss to changes in resource procurement rather than
+population size; Vaesen et al. (2016, *PNAS* 113) review hunter-gatherer studies and find no population–toolkit
+relation. The validation plan (§4) runs both.
 
 At agent resolution the same effect is not computed: it emerges from individual learners copying the best model they
 can reach (Cognition's skill practice plus Society's network). Invariant 3 requires the two to agree in the mean.
@@ -353,7 +356,7 @@ Society (contact), each when its side exists; until then the stub is named in ev
 
 | Target | Data (independent) | Indicator and tolerance (proposed; set before the run) | Level |
 |---|---|---|---|
-| toolkit size rises with population and contact | Kline & Boyd 2010, *Proc. R. Soc. B* 277 (10 Oceanic societies) | sign and order of magnitude of the slope of log tool count on log population; held out: Vaesen et al. 2016 hunter-gatherer data, where the expected result is *weak or no* relation; both reported | 2 |
+| toolkit size rises with population and contact | Kline & Boyd 2010, *Proc. R. Soc. B* 277 (10 Oceanic societies) | sign and order of magnitude of the slope of log tool count on log population; held out: Collard et al. 2005 (20 hunter-gatherer groups), where the expected result is *weak or no* relation; Vaesen et al. 2016 (*PNAS* 113) reviews that literature; both reported | 2 |
 | adoption is S-shaped and faster with profit | Griliches 1957 (hybrid corn by US state); Ryan & Gross 1943, *Rural Sociology* 8 (Iowa farmers) | logistic fit R²; rank correlation of speed with profitability, sign must match | 2 |
 | adoption lags between societies | Comin & Hobijn 2010, *American Economic Review* 100 (CHAT, 15 technologies, 166 countries) | distribution of lags at civilisation scale, P11 benchmark only | 2–3 |
 | records-only transfer of tacit techniques fails | Collins 1974 | qualitative: KD-1d pattern | 3 |
@@ -426,12 +429,18 @@ missing mechanism, input or interaction, never tuned to pass.
 ## Sources (to be confirmed and expanded by each research unit; no number is taken from them yet)
 
 Allen 2009, *The British Industrial Revolution in Global Perspective*; Bass 1969, *Management Science* 15; Buringh
-2011, *Medieval Manuscripts in Latin Europe*; Collins 1974, *Science Studies* 4; Collins 2010, *Tacit and Explicit
-Knowledge*; Comin & Hobijn 2010, *American Economic Review* 100; Griliches 1957, *Econometrica* 25; Hägerstrand 1967,
+2011, *Medieval Manuscripts in Latin Europe*; Collard, Kemery & Banks 2005; Collard et al. 2013, *PLoS ONE* 8(9)
+e72628; Collins 1974, *Science Studies* 4; Collins 2010, *Tacit and Explicit
+Knowledge*; Comin & Hobijn 2010, *American Economic Review* 100; Derex et al. 2013, *Nature* 503, 389–391; Dixon 1980,
+*Econometrica* 48(6), 1451–1461; Griliches 1957, *Econometrica* 25; Hägerstrand 1967,
 *Innovation Diffusion as a Spatial Process*; Henrich 2004, *American Antiquity* 69; Kestemont et al. 2022, *Science*
-375; Kline & Boyd 2010, *Proceedings of the Royal Society B* 277; Mokyr 2002, *The Gifts of Athena*; Polanyi 1966,
+375; Kline & Boyd 2010, *Proceedings of the Royal Society B* 277; Mahajan, Muller & Bass 1995, *Marketing Science*;
+Mokyr 2002, *The Gifts of Athena*; Muthukrishna & Henrich 2016, *Philosophical Transactions of the Royal Society B*;
+Polanyi 1966,
 *The Tacit Dimension*; Read 2006, *American Antiquity* 71; Rogers 2003, *Diffusion of Innovations* (5th ed.); Ryan &
-Gross 1943, *Rural Sociology* 8; Vaesen et al. 2016, *PNAS* 113; Weitzman 1998, *Quarterly Journal of Economics* 113.
+Gross 1943, *Rural Sociology* 8; Sultan, Farley & Lehmann 1990, *Journal of Marketing Research* 27(1), 70–77; Van den
+Bulte & Stremersch 2004, *Marketing Science* 23(4), 530–544; Vaesen et al. 2016, *PNAS* 113; Weitzman 1998,
+*Quarterly Journal of Economics* 113.
 
 ## Log
 

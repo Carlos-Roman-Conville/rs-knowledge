@@ -1,13 +1,14 @@
 # Rules for Codex (and any belt worker) in `Toolchain/knowledge`
 
-1. Read `DESIGN.md` (the sections your task names) first. It is the spec. Disagree by parking in `HANDOFF.md`
-   Blocked, never by changing DESIGN.md.
+1. Read `PLAN.md` (its §8.2 card for your lane) and the `DESIGN.md` sections your task names. PLAN.md wins where they
+   differ.
 2. **Never a tech tree (Rex).** No technique record or code names another technique as a prerequisite. A technique
    requires propositions, a skill and its recipes' physical inputs only (DESIGN §0 invariant 1, §1.3).
 3. **Never read a date (Rex, PLATFORM §6).** No code takes a calendar year, period, Catalogue date or `history.*`
    value as input. `catalogueRef` is an opaque reference string, never dereferenced by a mechanism.
 4. **The five states are separate predicates** (possible, known, invented, adopted, deployed; DESIGN §1.1). Never
-   derive one as a copy of another; every state can fall.
+   derive one as a copy of another; every state can fall. PLAN §2 and §3.1 replace `known` and `invented` with
+   availability, demonstrated here and currently executable.
 5. **The stock is an aggregate, never a second truth** (DESIGN §0 invariant 3, §1.2): computed from holders and
    readable records supplied through ports, nothing stored that a port did not report. No mind reads it.
 6. `src/` imports only `@rex/kernel` and its own files. Every other engine (Cognition, Society, Economy, Reality,

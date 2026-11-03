@@ -118,7 +118,7 @@ societies (`src/stock.ts:58-60`), no record in two places, A ≤ M. A and z̄ ar
 
 | Quantity | Unit / type | Range | Meaning | Kind |
 |---|---|---|---|---|
-| reporting coverage `C_s` | fraction | [0, 1] | people of `P_s` whose holder report is in this snapshot / expected population (Society) | carried with every count; **a count is never reported without its coverage and snapshot time** |
+| reporting coverage `C_s` | fraction | [0, 1] | distinct people on Society's applicable roster whose report is in this snapshot / people on that roster (corrected 2026-11-03) | carried with every count; **a count is never reported without its coverage and snapshot time**. The denominator is Society's roster (with its tick), independent of the reports; no roster ⇒ coverage unknown; an empty roster ⇒ not applicable, never a division by zero |
 | availability `K^avail_s(k)` | three-valued | {T, F, unknown} | T if ≥ 1 confirmed holder or qualifying record; F only if coverage is complete, no holder and no qualifying record; else unknown | derived. Replaces the boolean `known` |
 | demonstrated here | event flag + time | | a qualifying success event of k has occurred in s (Reality outcome via Economy) | retained fact; never cleared by holder loss |
 | currently executable | three-valued | | a holder with access to the method and the required conditions is present now | derived; Rex's "invented" (KNT-Q1: a working method present here); **independent of demonstrated here** (KNT-Q6) |
@@ -159,8 +159,14 @@ carried. Stops applying: a technique with no recipe link reports `possible = nul
   with several comparable output bases (mass, count, energy content) reports one ratio per declared basis. The schema
   rejects a ratio whose numerator and denominator differ in product, basis, unit or interval, so unrelated products
   can never be summed into one fraction.
-- **Used ≠ deployed:** *used* = producers using it (Economy). *Deployed* = the share above. Adoption never guarantees
-  output.
+- **Share convention (2026-11-03): output produced using the method.** `Q_{s,k,g}` counts each unit of g once if k
+  was used in producing it. One loaf can involve milling, fermentation and baking, so each method's share can cover
+  that loaf and the shares of different methods need not sum to 1. Partitioned shares (summing to 1) are reported only
+  for a declared comparison group of mutually exclusive alternatives (two milling processes); the group is named in the
+  report.
+- **Used ≠ deployed:** *used* = producers using it now (Economy). *Deployed* = the share above. Adoption never
+  guarantees output. *Has adopted* (a retained adoption event, KN-7), *currently executable* and *used now* stay three
+  distinct facts: a furnace business lacking fuel this month still adopted the furnace.
 
 **3.2 Collective stock with loss** (`knowledge.collective.stock`, DUP-61, DESIGN §1.2, `src/stock.ts`). Chain: Cognition
 holder reports (heard-of / holds, skill) + Economy record objects with Reality's intact flag + reader reports →
@@ -187,7 +193,10 @@ from membership.
   custody and physical-access contracts (Reality: placement and physical access; Economy: custody). It never computes a
   second access calculation. Script competence is Cognition's `mind.skill` for the reading technique.
 - **A surviving record preserves information, not skill.** Reading makes a holder only through Cognition's learning
-  (§3.5). The record alone changes `R` and availability, never `H` or skill.
+  (§3.5). The record alone changes `R` and availability, never `H` or skill. Reading can contribute to learning and
+  skill through Cognition; what it never does is count as a successful physical demonstration. The KD-1 runner's
+  shortcut (reading sets skill and can increment successes without executing the method, `kd1.ts:165`) is a labelled
+  fixture of the KD-1 acceptance runs only and never becomes the live learning or invention pathway.
 - **Retention at individual resolution (KN-8):** loss is derived only from actual holder changes (death, departure,
   forgetting, as reported by Life, Society and Cognition) and from record condition. K&T adds **no forgetting rate of
   its own** on top of Cognition's.
@@ -266,7 +275,16 @@ the result and never writes another person's memory. The aggregate hazards are *
 - **Arrival probability:** for a constant combined hazard h, `P(≥ 1 successful arrival in Δt) = 1 − e^{−hΔt}`
   (already `kd1.ts:73-76`); for a varying hazard use `1 − exp(−∫h dt)`. This is the probability that at least one
   holder arrives in t, **not** the fraction of t's population that learns. A further learner in t is a separate event.
-- **Tests:** zero contacts; overlapping channels (the combined hazard is the sum, no channel double-counts another);
+- **Overlap (corrected 2026-11-03).** Summing hazards of distinct event processes is correct: `h = Σ_c h_c`. Double
+  counting arises only when two channels describe the same underlying opportunity, and sampling a channel in
+  proportion to `h_c` does not repair an inflated total; it only labels the event. The rule: define non-overlapping
+  transmission opportunities (one migrant, one contact, one artefact, one record reading) **before** the channel rates
+  are set; at individual resolution each explicit event carries an opportunity id and is processed once. One encounter
+  may carry several kinds of information; that is not forbidden to make labels exclusive.
+- **Quantity kinds (2026-11-03).** Every value at a seam declares whether it is an event probability, a realized
+  count, an expected count or a population fraction. A society-level `P(≥ 1 arrival)` is never multiplied by a
+  population to give learners; aggregate fractional adopters are expected counts, never partial people.
+- **Tests:** zero contacts; distinct channels sum, one opportunity is processed once (by its id);
   time-step consistency (the same probability over one Δt as over two Δt/2); contact or receipt of a record without
   learning.
 
@@ -301,11 +319,25 @@ dA/dt = (p + q_eff · A / M_s) · (M_s − A)                                   
 **restricted candidate** for aggregate resolution only, needing its own validation for historical techniques. At
 individual resolution adoption is derived: each producer's use is Cognition's choice, counted by K&T.
 - **Test the basic model first:** constant M against the closed-form Bass solution (§7) before any extension.
-  `q_eff = q_c(1 + κr)` stays a hypothesis, not a law, and is not built before CP-4.
-- **Adoption and abandonment are separate processes (confirmed defect KNT-17).** `adoption.ts:22-27` and `:45` clamp
-  current adopters to a smaller ceiling, which assumes instant abandonment. Abandonment needs its own rule
-  (producers whose advantage turned negative stop at a declared rate, or as individual choices); until then a falling
-  M is reported, not clamped.
+  `q_eff = q_c(1 + κr)` stays a hypothesis, not a law, deferred, and is not built before CP-4.
+- **Exact update for fixed conditions (2026-11-03; scheduled with CP-4 aggregate adoption, not a CP-1 requirement; 5538's closed-form check of the current update stays).** With `a = A/M`, `E = e^{−(p+q)Δt}`:
+  `a' = [p(1 − E) + a(q + pE)] / [p + qE + qa(1 − E)]`, `A' = M·a'`, valid for M > 0, 0 ≤ a ≤ 1, p, q ≥ 0, while M, p
+  and q stay fixed over Δt (the keeper checked it against the logistic substitution; Δt → 0 gives a, Δt → ∞ gives 1,
+  p = 0 with a = 0 stays 0; at p = 0 it reduces to the logistic `a / (a + (1 − a)E)`). Explicit cases, where the
+  formula is 0/0 or undefined: p = q = 0 ⇒ a' = a; M = 0 ⇒ not applicable. A step is split wherever M, p or q change; an adopter count is never reinterpreted against
+  a new M without reconciling membership. This is a numerical simplification, not evidence that Bass fits a society.
+- **Who may adopt (2026-11-03).** Every adopting producer must have the knowledge, personnel, access and resources the
+  method needs under the declared production model; a business may adopt by hiring a holder, so `A ≤ H` is **not**
+  imposed (producers and people are different populations). Individually represented producers are checked
+  individually (KN-5 per producer); for aggregate adoption M is derived from those requirements, never from the raw
+  holder count. Where the requirements are unknown, M is unknown.
+- **Three causes of A falling, never a clamp (confirmed defect KNT-17).** `adoption.ts` clamps current adopters to a
+  smaller ceiling, which silently models instant abandonment. Each fall has its own recorded transition: (1) the
+  adopting entity departs or dies (Society, Life); (2) it loses the conditions required for current use (KN-5
+  re-evaluated: it stays *has adopted* but is not *used now*); (3) it decides to stop (Cognition, or a declared
+  aggregate abandonment rate at CP-4). A skilled worker's death does not remove the business: its capability is
+  recomputed, and another worker may replace them. Until these transitions exist, an A above the new M is an error
+  reported to the caller, never clipped.
 - **Costs must be comparable (supersedes the person-hours bullet above).** Person-hours, fuel mass and material
   quantities are never subtracted into one scalar without a declared valuation rule. Economy supplies Δc only as a
   comparison under a named valuation (market prices where a market exists; otherwise Economy's declared rule, KNT-E2).
@@ -407,7 +439,7 @@ switch is byte-identical.
 
 | Quantity | Producer → consumer | Unit, range | Timing | Failure / rollback |
 |---|---|---|---|---|
-| holder report (heard-of / holds, skill) | Cognition → `knowledge.port.holders` (KNT-C1 agreed) | per mind; skill [0,1] | event (belief crosses θ_hold) | missing = not a holder; a stub that never reports forgetting is flagged "false survival" |
+| holder report (heard-of / holds, skill) | Cognition → `knowledge.port.holders` (KNT-C1 agreed) | per mind; skill [0,1] | event (belief crosses θ_hold) | missing = not reported (lowers coverage), never "not a holder" (corrected 2026-11-03); a stub that never reports forgetting is flagged "false survival" |
 | skill practice and decay | Cognition `cognition.skill.practice` → `mind.skill` port (Cognition PLAN A.4) → holder report; the same value goes to Settlement `labour_cap` (DC-14) | 1, [0,1] per technique, fraction of expert performance | daily or per practice outcome | **interface KNT-7**: units agreed; form, rates, decay (Arthur et al. 1998), initial values and performance measure open for Rex; fixture skill until the port exists |
 | deaths, departures | Life, Society → `knowledge.port.deaths` | per person | event | unreported death = holder survives (flagged on stubs) |
 | contact rates m, c, v, ρ per pair per channel; within-society density q_c; contact weights w_st; literacy teaching | Society → `knowledge.port.contact` (**interface KNT-S1: waits on Society; not yet raised**) | per year ≥ 0; null = unreported | per step | null throws (`diffusion.ts:35-38`); never defaulted |
@@ -557,8 +589,12 @@ tests, connection test.
 1. *Question:* how many people in s hold, or have heard of, k, and how complete is that count?
 2. *Boundary:* Cognition says who holds (KNT-C1, `mind.skill` KNT-7); Society says who is in `P_s` and the expected
    population; K&T counts, never infers.
-3. *Model:* `H` and `H^heard` as distinct-person sums, each with coverage `C_s` and snapshot time; availability by
-   the three-valued rule (§2, §3.2).
+3. *Model:* `H` and `H^heard` as distinct-person sums, each with coverage `C_s` (denominator: Society's roster) and
+   snapshot time; availability by the three-valued rule (§2, §3.2). **Ruling on the 5534 park (2026-11-03):** the
+   KD-1 fixtures and runner simulate every person of A and B, so they supply complete coverage by construction (a
+   roster and a reported-minds list of all simulated people, tick = step). KD-1a's "B does not know" then reads
+   availability = false exactly as before; renaming `known` to `availability` is the KNT-Q1 mapping, not a changed
+   expected value. A fixture that omits coverage gets unknown, which is correct.
 4. *Evidence:* exact accounting; no coefficient.
 5. *Functional tests:* a duplicate report counts once; a mind in two societies is a conservation failure (exists);
    a partial snapshot reports confirmed holders plus coverage, never a total; a zero below full coverage is unknown,
@@ -606,7 +642,7 @@ Cards for KN-3, KN-6–KN-9 are drafted when their checkpoint opens, from §3.2,
 | **CP-1 truthful knowledge accounting** | KN-1, KN-2, KN-3 (labelled fixture access), KN-4, KN-5 contract | nothing live; labelled holders and records | presence, loss, surviving records and unknown inputs, each correct. Passes while correctly reporting unknowns; it does not need every fact known. Fixes KNT-8, KNT-14 (as a labelled assumption), KNT-15, KNT-16; Bass closed-form verification only | parallel |
 | **CP-2 a method used by an individual** | KN-5 live on one supported task | Economy recipe (KNT-E1), Reality P2 process, Life work cost, Cognition candidates | KD-2: one worker, the same tree, with and without the hafted-edge technique; K&T identifies the method; the other engines compute execution and outcome. Paired: holder (task done, reserves hold) vs no holder (no method available; reserves fall through the specified states) | **M2** |
 | **CP-3 transmission and retention** | KN-6, KN-8 at individual resolution | Cognition learning and `mind.skill` (KNT-7); Society contact and membership events (KNT-S1) | one person learns through Cognition, becomes a holder, and can attempt the method; loss and recovery tested (last holder leaves, record survives, someone learns again) | M5 prep |
-| **CP-4 aggregate approximation** | KN-6–KN-9 aggregate halves | only when aggregate simulation is needed; CP-3 | aggregate arrival, Bass (and only then the κ hypothesis, KD-1g), Henrich (if KNT-10, KNT-5 are settled), compared with matched individual runs; KN-9 exclusive ownership | M5 |
+| **CP-4 aggregate approximation** | KN-6–KN-9 aggregate halves | only when aggregate simulation is needed; CP-3 | aggregate arrival, Bass with the exact constant-input update and the three recorded fall causes (§3.6; draft 5610) (and only then the κ hypothesis, KD-1g), Henrich (if KNT-10, KNT-5 are settled), compared with matched individual runs; KN-9 exclusive ownership | M5 |
 | later | §3.7a invention chain; cultivation and preservation records (M3/M4); §7 empirical validation | Cognition `decision.generate` (KNT-6), KNT-12, KNT-13; Life M3/M4 | — | — |
 
 **Superseded in DESIGN:** §1.6 all-or-nothing `M_s` (now §3.6); §1.8 medium descriptor (ruling 2026-11-01; code lags,
@@ -626,4 +662,6 @@ interface); KNT-E1/E2 (Economy); KNT-R1 (Reality); KNT-5 (generation window); KN
 | 2026-11-02 | Registry INTEGRATION-PLAN: DC-14 (productivity derived in Settlement `labour_cap`; the gate is a port Settlement reads) folded into pass 1, §3.4, §4; chain INV-01..07 and IT-INV-1 cited in §3.4, §3.7a |
 | 2026-11-02 | Cognition PLAN A.3/A.4: `mind.skill` is [0,1], a fraction of expert performance; z and minSkill use it (§2, §3.3, §4); form, rates and performance measure stay open under KNT-7 |
 | 2026-11-02 | Review (pre-reviewed, adopted with its corrections): nine lanes KN-1–KN-9 and checkpoints CP-1–CP-4 replace the stage table (§8); exact counting with coverage, three-valued availability, unknowns naming missing input and producer, freshness as a status (§2, §3.2); `enables` alternatives vs prerequisites (§3.1); demonstrated-here / currently-executable split (§3.1, KNT-Q6); deployment basis; method access ≠ success, minSkill reconciled (§3.4); directional migration, artefact channel, arrival probability (§3.5); Bass restricted, abandonment separate, comparable costs, p vs diffusion (§3.6); Henrich experimental (§3.3); KN-9 ownership (§3.10). Defects KNT-14–17. K&T stated off M1a's path |
+| 2026-11-03 | Review closed: clarifications reconciled; exact Bass update moved to CP-4 (5538 kept); duplicate re-run drafts withdrawn; remaining unit gaps: 5534 (roster, KD-1 ruling) and 5536 (share convention, roster) |
+| 2026-11-03 | Review of the active models (pre-reviewed, with its qualifications): coverage denominator = Society's roster, empty roster not applicable (§2); share convention = output produced using the method, partitioned only for a declared comparison group; has adopted / currently executable / used now kept apart (§3.1); reading may feed learning but never counts as a demonstration, KD-1 runner shortcut confined to fixtures (§3.2); summed hazards kept, overlap prevented by defining opportunities first and processing each explicit event once, quantity kinds declared at seams (§3.5); exact Bass update for fixed conditions replaces Euler, A ≤ H not imposed, three recorded causes of A falling replace the clamp (§3.6). κr, copying loss and aggregate invention stay deferred. KN-2 park ruled: KD-1 fixtures and runner supply full coverage (§8.2 KN-2) |
 | 2026-11-02 | Final clarification (review closed): KNT-Q6 accepted, the two states independent; Bass p kept: first adoption is a p event among eligible producers (or one choice), counted once, arrivals change M only; defects labelled against their contracts (KNT-15 only where recipes are alternatives). Cards KN-1, KN-4 and the KN-7 row updated. K&T stays parallel to M1a; implementation waits on approval and the interface agreements |
